@@ -8,6 +8,7 @@ You're now hosting a local server.
 For letting everyone to connect to your newly-made server, you need to set a static IP and port forward port 5000, make ExpressJS listen to the LAN address you forwarded, and that should be all.
 
 # Credits
+OpenAuto2 wasn't made by just one person, we need to credit everyone who helped to the creation of this game:
 * [Mibli](https://www.youtube.com/channel/UCa54-UgPZkrYNVFrV3B8MPQ?view_as=subscriber) - Car sounds
 * [minus](https://github.com/minusyt23) - Car physics, collision boxes, base game
 * [SuperLeaf1995](https://github.com/SuperLeaf1995) - IRC Chat, Multiplayer server and client

@@ -39,15 +39,12 @@ io.on('connection', function(socket) {
 		z: 1, //zoom
 		id: socket.id, //send socket id
 		rot: 0, //rotation is zero
-		carType: 0, //will later changeTM
+		carType: 0, //will later change
 		vel: 0,
 		toIssue: 8, //defaults to no key pressed
-		nick: Math.floor(Math.random()*100)
+		nick: Math.floor(Math.random()*100),
+		onFoot: true //no one can spawn with a car, muahahaha!
 	}; //create new blank user struct
-	//randomily select the car type
-	let g = Math.floor(Math.random()*(carData.lenght*2));
-	(g > carData.lenght) ? g = 0 : g = g;
-	userData[socket.id].ct = g;
 	//first, send the socket all needed data to start
 	socket.emit('userReceiveData',{mess: messages,car: carData,local: localeData});
 	socket.emit('userReceiveList',userData); //send socket our current player stuff
@@ -61,10 +58,7 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('userUpdate', function(data) {
-		userData[socket.id].x = data.obj.sprite.bb.x;
-		userData[socket.id].y = data.obj.sprite.bb.y;
-		userData[socket.id].z = data.obj.sprite.zoom;
-		userData[socket.id].rot = data.obj.sprite.bb.angle;
+		userData[socket.id] = data;
 		io.emit('userUpdate',userData[socket.id]); //give them our stuff
 	});
 	
@@ -74,15 +68,44 @@ io.on('connection', function(socket) {
 	
 	function sendMessage(msg,server) {
 		//check if message is empty
-		if(msg === "") {
-			return; //abort	
-		}
-		if(msg.match(/nick/i)) {
-			msg = msg.slice(6);
-			console.log('someone set their nick to '+msg);
-			userData[socket.id].nick = msg;
+		if(msg === "") { return; }
+		
+		if(msg.startsWith(serverSettings.prefix)) {
+			var args = msg.trim().split(" "); //split the message in arguments
+			var cmd = args[0].slice(serverSettings.prefix.length); //take first argument (0) and remove the prefix
+			switch(cmd) {
+				case 'help':
+					socket.emit('userSpreadMessage','== Help command ==');
+					socket.emit('userSpreadMessage','help: displays help');
+					socket.emit('userSpreadMessage','nick: sets a nick for the current socket');
+					socket.emit('userSpreadMessage','uli: gets a list of users by socket id');
+					socket.emit('userSpreadMessage','uln: gets a list of users by nickname');
+					break;
+				case 'nick':
+					if(!args[1]) { return; }
+					userData[socket.id].nick = args[1]; //assign the first argument after the nick
+					break;
+				case 'uli':
+					var userString = "Users: ";
+					for(let i in userData) {
+						userString = userString+userData[i].id+' , ';
+					}
+					socket.emit('userSpreadMessage',userString);
+					break;
+				case 'uln':
+					var userString = "Users: ";
+					for(let i in userData) {
+						userString = userString+userData[i].nick+' , ';
+					}
+					socket.emit('userSpreadMessage',userString);
+					break;
+				default:
+					socket.emit('userSpreadMessage','invalid command issued'); //send ONLY to issuer socket that the command is invalid
+					break;
+			}
 			return;
 		}
+		
 		(server === true) ? msg = '['+localeData[serverSettings.language].server+']:'+msg : msg = '['+userData[socket.id].nick+']:'+msg;
 		io.emit('userSpreadMessage',msg); //lets spread it
 		messages[messageCount] = msg;
@@ -95,6 +118,7 @@ process.once('SIGINT',function() {
 	console.log('Shutdown signal received');
 	console.log('Informing sockets of server closing');
 	io.emit('userSpreadMessage','['+localeData[serverSettings.language].host+']: Server shutdown');
-	console.log('Shutdowning the HTTP server');
-	http.close();
+	console.log('Shutdowning the HTTP server and SOCKETS server');
+	io.close(); //close sockets
+	http.close(); //close http server
 });

@@ -1,5 +1,6 @@
 {
 	"name": "OpenAuto2 custom server",
 	"description": "server",
-	"language": "en"
+	"language": "en",
+	"prefix": "?"
 }

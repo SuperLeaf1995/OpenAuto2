@@ -1,28 +1,22 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="UTF-8"></meta>
+		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>OpenAuto 2</title>
 		<link rel="stylesheet" href="css/main.css">
 	</head>
 	<body>
-		<script src="https://cdn.socket.io/socket.io-1.1.0.js"></script>
-		
-		<canvas id="canvas"></canvas>
+		<canvas id="canvas"></canvas> <!-- the drawing area -->
 
 		<div id="chat" class="chat">
-			<div id="textland"class="chattext">
+			<div id="textland" class="chattext"> <!-- this is whhere chat text is put on -->
 			</div>
 		</div>
+		<input type="text" id="chatbox"> <!-- input box for sending messages -->
+		<button id="sendButton" onclick="sendMessage();"></button> <!-- button to send the message -->
 		
-		<input type="text" id="chatbox"></input>
-		<button id="sendButton" onclick="sendMessage();"></button>
-
-		<script src="js/event.js"></script>
-		<script src="js/canvas.js"></script>
-		<script src="js/car.js"></script>
-		<script src="js/socket.js"></script>
-		<script src="js/main.js"></script>
+		<script src="socket.js"></script> <!-- script used to interact with the server-->
+		<script src="js/main.js"></script> <!-- main script for the page -->
 	</body>
 </html>
