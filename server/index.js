@@ -11,12 +11,32 @@ const fs = require('fs');
 const port = process.env.PORT || 5000;
 
 var userData = {};
+var npcData = {};
 var messages = {};
 var messageCount = 0;
 
 var serverSettings = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/config.json')));
 var localeData = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/locale.json')));
 var carData = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/cardata.json')));
+var pedData = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/peddata.json')));
+var mapData = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/mapdata.json')));
+
+console.log('generating npcs');
+for(let i = 0; i < serverSettings.maxNpc; i++) {
+	npcData[i] = {
+		x: Math.floor(Math.random()*420),
+		y: Math.floor(Math.random()*420),
+		z: 1,
+		r: Math.floor(Math.random()*420),
+		v: 0,
+		isCar: false,
+		carType: 0,
+		pedType: 0,
+		toIssue: 4
+	}
+}
+
+var mapNodeData = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/mapnode.json')));
 
 app.get(path.normalize(__dirname+'/../client/'),function(req, res) {
 	res.sendFile(path.normalize(__dirname+'/../client/index'));
@@ -40,13 +60,22 @@ io.on('connection', function(socket) {
 		id: socket.id, //send socket id
 		rot: 0, //rotation is zero
 		carType: 0, //will later change
+		pedType: 0,
 		vel: 0,
+		money: 5000,
 		toIssue: 8, //defaults to no key pressed
 		nick: Math.floor(Math.random()*100),
 		onFoot: true //no one can spawn with a car, muahahaha!
 	}; //create new blank user struct
 	//first, send the socket all needed data to start
-	socket.emit('userReceiveData',{mess: messages,car: carData,local: localeData});
+	for(let i in mapData) {
+		for(let i2 in mapData[i]) {
+			for(let i3 in mapData[i][i2]) {
+				socket.emit('userReceiveMap',{i: i,i2: i2,i3: i3,data: mapData[i][i2][i3]});
+			}
+		}
+	}
+	socket.emit('userReceiveData',{mess: messages,car: carData,local: localeData,ped: pedData,npc: npcData,node: mapNodeData});
 	socket.emit('userReceiveList',userData); //send socket our current player stuff
 	//emit to everyone the new socket
 	io.emit('userNew',userData[socket.id]); //send everyone the socket information
@@ -60,6 +89,7 @@ io.on('connection', function(socket) {
 	socket.on('userUpdate', function(data) {
 		userData[socket.id] = data;
 		io.emit('userUpdate',userData[socket.id]); //give them our stuff
+		io.emit('npcUpdate',npcData);
 	});
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message
@@ -106,7 +136,7 @@ io.on('connection', function(socket) {
 			return;
 		}
 		
-		(server === true) ? msg = '['+localeData[serverSettings.language].server+']:'+msg : msg = '['+userData[socket.id].nick+']:'+msg;
+		(server === true) ? msg = '['+localeData[serverSettings.language].server+']: '+msg : msg = '['+userData[socket.id].nick+']: '+msg;
 		io.emit('userSpreadMessage',msg); //lets spread it
 		messages[messageCount] = msg;
 		messageCount++;

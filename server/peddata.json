@@ -1,0 +1,6 @@
+[{
+	"skin": "img/ped/ped00-00.png",
+	"health": 5,
+	"movStep": 0.1,
+	"movMax": 2
+}]

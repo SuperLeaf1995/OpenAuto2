@@ -2,20 +2,28 @@
 // VARIABLES, LOCALES AND CONSTANTS
 //===========================================================
 
-var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
-//var socket = io('http://localhost:5000/');
+//var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
+var socket = io('http://localhost:5000/');
 
 const canvas = document.getElementById("canvas"); //assign the element of canvas
-const display = canvas.getContext("2d"); //set as a 2D canvas
+const display = canvas.getContext("2d",{alpha: true}); //set as a 2D canvas
 canvas.width = 800; //define the real width and height of the canvas
 canvas.height = 400;
 var canvasHeight = canvas.height; //define the canvas size variables
 var canvasWidth = canvas.width;
+//set extra stuff to avoid some artifacts
+display.mozImageSmoothingEnabled = false; display.webkitImageSmoothingEnabled = false;
+display.msImageSmoothingEnabled = false; display.imageSmoothingEnabled = false;
+
+var enterCar = false;
 
 var userData = {}; //<- player data
 var carData = {}; //<- car sprites, data, stats, etc
+var nodeData = {}; //<- npc paths
+var npc = {}; //<- npcs, nasty motherfuckers
+var pedData = {}; //<- ped sprites, data, stats, etc
 var localeData = {}; //<- language and names and stuff
-var mapData = {}; //<- data of city map
+var mapData = []; //<- data of city map
 var keymapper = {}; //used to register keypresses
 var id; //<- assigned socket id
 
@@ -115,9 +123,22 @@ socket.on('connect',function() {
 	id = socket.io.engine.id;
 });
 
+//socket.on:npcUpdate
+//Updates the npc
+socket.on('npcUpdate',function(npc) {
+	npcData = npc;
+	for(let i in npcData) {
+		if(npcData[i].isCar) {
+			npcData[i].obj = new Car(npcData[i].x,npcData[i].y,npcData[i].z,npcData[i].carType,display,npcData[i].r,npcData[i].v,false);
+		} else {
+			npcData[i].ped = new Ped(npcData[i].x,npcData[i].y,npcData[i].z,npcData[i].pedType,display,npcData[i].r,npcData[i].v,false);
+		}
+	}
+});
+
 //socket.on:userReceiveData
 //receives data from the server and stores it on the local data variables
-socket.on('userReceiveData',function({mess,car,local}) {
+socket.on('userReceiveData',function({mess,car,local,ped,npc,node}) {
 	for(let i in mess) {
 		let a = document.createElement('li'); //the li element
 		let b = document.createTextNode(mess[i]); //content in li
@@ -127,6 +148,23 @@ socket.on('userReceiveData',function({mess,car,local}) {
 		//c.scrollBy(0,50);
 	}
 	carData = car;
+	pedData = ped;
+	npcData = npc;
+	for(let i in node) {
+		node[i].x *= tileSize;
+		node[i].y *= tileSize;
+		node[i].x2 *= tileSize;
+		node[i].y2 *= tileSize;
+	}
+	nodeData = node;
+	//create new cars/peds for npcs
+	for(let i in npcData) {
+		if(npcData[i].isCar) {
+			npcData[i].obj = new Car(npcData[i].x,npcData[i].y,npcData[i].z,npcData[i].carType,display,npcData[i].r,npcData[i].v,false);
+		} else {
+			npcData[i].ped = new Ped(npcData[i].x,npcData[i].y,npcData[i].z,npcData[i].pedType,display,npcData[i].r,npcData[i].v,false);
+		}
+	}
 	//set the locale of the HTML elements text in the page
 	var lang = window.navigator.userLanguage || window.navigator.language;
 	localeData = local[lang]; //set appropiate locale
@@ -136,13 +174,23 @@ socket.on('userReceiveData',function({mess,car,local}) {
 	i.innerHTML = localeData.send;
 });
 
+//socket.on:userReceiveData
+//receives data from the server and stores it on the local data variables
+socket.on('userReceiveMap',function({i,i2,i3,data}) {
+	if(mapData[i] === undefined) { mapData[i] = [] }
+	if(mapData[i][i2] === undefined) { mapData[i][i2] = [] }
+	if(mapData[i][i2][i3] === undefined) { mapData[i][i2][i3] = [] }
+	mapData[i][i2][i3] = new MapTile(tileSize);
+	mapData[i][i2][i3].setNewCoords(data.x,data.y,data.z);
+});
+
 //socket.on:userReceiveList
 //receive the user list and create a new player object for each player
 socket.on('userReceiveList',function(user) {
 	userData = user; //the stuff  from user is now in our local thing
 	for(let index in userData) {
 		if(user[index].onFoot) {
-			userData[index].ped = new Car(userData[index].x,userData[index].y,userData[index].z,userData[index].carType,display,userData[index].rot,userData[index].vel,false);
+			userData[index].ped = new Ped(userData[index].x,userData[index].y,userData[index].z,userData[index].pedType,display,userData[index].rot,userData[index].vel,false);
 		} else if(!user[index].onFoot) {
 			userData[index].obj = new Car(userData[index].x,userData[index].y,userData[index].z,userData[index].carType,display,userData[index].rot,userData[index].vel,false);
 		}
@@ -160,7 +208,7 @@ socket.on('userNew',function(user) {
 	userData[user.id] = user; //register new user
 	//create new car object for that user
 	if(user.onFoot) {
-		userData[user.id].ped = new Car(userData[user.id].x,userData[user.id].y,userData[user.id].z,userData[user.id].carType,display,userData[user.id].rot,userData[user.id].vel,false);
+		userData[user.id].ped = new Ped(userData[user.id].x,userData[user.id].y,userData[user.id].z,userData[user.id].pedType,display,userData[user.id].rot,userData[user.id].vel,false);
 	} else if(!user.onFoot) {
 		userData[user.id].obj = new Car(userData[user.id].x,userData[user.id].y,userData[user.id].z,userData[user.id].carType,display,userData[user.id].rot,userData[user.id].vel,false);
 	}
@@ -176,8 +224,10 @@ socket.on('userUpdate',function(user) {
 	userData[user.id] = user;
 	//plot new stuff
 	if(user.onFoot === true) {
-		userData[user.id].ped = new Car(userData[user.id].x,userData[user.id].y,userData[user.id].z,userData[user.id].carType,display,userData[user.id].rot,userData[user.id].vel,false);
+		delete userData[user.id].obj;
+		userData[user.id].ped = new Ped(userData[user.id].x,userData[user.id].y,userData[user.id].z,userData[user.id].pedType,display,userData[user.id].rot,userData[user.id].vel,false);
 	} else {
+		delete userData[user.id].ped;
 		userData[user.id].obj = new Car(userData[user.id].x,userData[user.id].y,userData[user.id].z,userData[user.id].carType,display,userData[user.id].rot,userData[user.id].vel,false);
 	}
 });
@@ -255,7 +305,21 @@ MapTile.prototype.draw = function(d) {
 		d.moveTo(v1Project.x,v1Project.y);
 		d.lineTo(v2Project.x,v2Project.y);
 	};
+	
 	d.stroke();
+	
+	const v1 = {
+		x: this.x+(this.radius*cubeVertices[0][0]),
+		y: this.y+(this.radius*cubeVertices[0][1]),
+		z: this.z+(this.radius*cubeVertices[0][2])
+	};
+	const v2 = {
+		x: this.x+(this.radius*cubeVertices[7][0]),
+		y: this.y+(this.radius*cubeVertices[7][1]),
+		z: this.z+(this.radius*cubeVertices[7][2])
+	};
+	const v1Project = this.project(v1.x,v1.y,v1.z);
+	const v2Project = this.project(v1.x,v1.y,v1.z);
 };
 
 function BoundBox(x,y,w,h,rot) {	
@@ -280,6 +344,17 @@ BoundBox.prototype.update = function() {
 			y:(this.o[i].x*sAngle)+(this.o[i].y*cAngle)+this.y
 		}
 	}
+	/*display.beginPath();
+	display.moveTo(this.p[0].x-userData[id].x+(canvasWidth/2)-(this.w/2),this.p[0].y-userData[id].y+(canvasHeight/2)-(this.h/2));
+	display.lineTo(this.p[1].x-userData[id].x+(canvasWidth/2)-(this.w/2),this.p[1].y-userData[id].y+(canvasHeight/2)-(this.h/2));
+	display.lineTo(this.p[2].x-userData[id].x+(canvasWidth/2)-(this.w/2),this.p[2].y-userData[id].y+(canvasHeight/2)-(this.h/2));
+	display.lineTo(this.p[3].x-userData[id].x+(canvasWidth/2)-(this.w/2),this.p[3].y-userData[id].y+(canvasHeight/2)-(this.h/2));
+	display.lineTo(this.p[0].x-userData[id].x+(canvasWidth/2)-(this.w/2),this.p[0].y-userData[id].y+(canvasHeight/2)-(this.h/2));
+	display.moveTo(this.x-userData[id].x+(canvasWidth/2)-(this.w/2),0);
+	display.lineTo(this.x-userData[id].x+(canvasWidth/2)-(this.w/2),this.y-userData[id].y+(canvasHeight/2)-(this.h/2));
+	display.moveTo(0,this.y-userData[id].y+(canvasHeight/2)-(this.h/2));
+	display.lineTo(this.x-userData[id].x+(canvasWidth/2)-(this.w/2),this.y-userData[id].y+(canvasHeight/2)-(this.h/2));
+	display.stroke();*/
 };
 
 function Sprite(d,src,x,y,rot,z,f) {
@@ -310,7 +385,7 @@ Sprite.prototype.update = function() {
 		}
 	
 		this.display.rotate(this.bb.angle); //rotate again
-		this.display.drawImage(this.img,(-this.bb.w/2),(-this.bb.h/2),this.bb.w,this.bb.h); //draws
+		this.display.drawImage(this.img,Math.floor(-this.bb.w/2),Math.floor(-this.bb.h/2),Math.floor(this.bb.w),Math.floor(this.bb.h)); //draws
 		this.display.rotate(-this.bb.angle); //set rotation to 0 (so everything dosent messes up)
 		if(this.focus) {
 			this.display.translate(-(canvasWidth/2)+(this.bb.w/2),-(canvasHeight/2)+(this.bb.h/2));
@@ -350,18 +425,41 @@ Car.prototype.update = function(issue) {
 	this.sprite.update();
 };
 
+function Ped(x,y,z,ct,d,rot,v,f) {
+	this.pedType = ct;
+	this.sprite = new Sprite(d,pedData[ct].skin,x,y,rot,z,f);
+	this.movVel = v;
+};
+
+Ped.prototype.update = function(issue) {
+	if (issue === 0 || (issue === 4 || issue === 5)) { //w
+		this.movVel >= pedData[this.pedType].movMax ? this.movVel = pedData[this.pedType].movMax : this.movVel += pedData[this.pedType].movStep;
+	} if(issue === 1 || issue === 6 || issue === 7) { //s
+		this.movVel <= -pedData[this.pedType].movMax ? this.movVel = -pedData[this.pedType].movMax : this.movVel -= pedData[this.pedType].movStep;
+	} if((issue === 2 || issue === 4 || issue === 6)) { //d
+		this.sprite.bb.angle += 0.1;
+	} if((issue === 3 || issue === 5 || issue === 7)) { //a
+		this.sprite.bb.angle -= 0.1;
+	} if((issue === 2 || issue === 3 || issue === 8) && this.movVel > 0) { //no key pressed
+		this.movVel = 0;
+	} if((issue === 2 || issue === 3 || issue === 8) && this.movVel < 0) {
+		this.movVel = 0;
+	}
+	
+	if((this.movVel > 0 && this.movVel < 0.1)
+	|| (this.movVel < 0 && this.movVel > -0.1)) {
+		this.movVel = 0;
+	}
+	
+	this.sprite.move(this.movVel);
+	this.sprite.update();
+};
+
 //--------------------------
 // MAIN GAME
 //--------------------------
 
 display.strokeStyle = 'black';
-var mapData = []; //the map data array
-for(let i = 0; i < 16; i++) {
-	mapData[i] = []; //make a second array (2D array!)
-	for(let i2 = 0; i2 < 16; i2++) {
-		mapData[i][i2] = new MapTile(tileSize);
-	}	
-}
 
 function mainGame() {
 	if ((keymapper.w) && !(keymapper.a) && !(keymapper.d)) { userData[id].toIssue = 0; } //advance, no turn
@@ -396,14 +494,13 @@ function mainGame() {
 	
 	for(let i in mapData) {
 		for(let i2 in mapData[i]) {
-			let a = tileSize*i;
-			let b = tileSize*i2;
-			let rend = true;
-			
-			if(rend) {
-				mapData[i][i2].setNewCoords(a,b,0);
-				mapData[i][i2].update(userData[id].x/6,userData[id].y/6,1);
-				mapData[i][i2].draw(display);
+			for(let i3 in mapData[i][i2]) {
+				let a = tileSize*i;
+				let b = tileSize*i2;
+				
+				mapData[i][i2][i3].setNewCoords(a,b,0);
+				mapData[i][i2][i3].update((userData[id].x/6)-64,(userData[id].y/6)-104,1);
+				mapData[i][i2][i3].draw(display);
 			}
 		}
 	}
@@ -414,16 +511,31 @@ function mainGame() {
 		} else {
 			userData[index].obj.update(userData[index].toIssue);
 		}
-		display.fillText(userData[index].nick,userData[index].x-userData[id].x+(canvasWidth/2)-(userData[index].w/2),userData[index].y-userData[id].y+(canvasHeight/2)-(userData[index].h/2)-48);
+		display.fillText(userData[index].nick,userData[index].x-userData[id].x+(canvasWidth/2)-(userData[index].w/2),userData[index].y-userData[id].y+(canvasHeight/2)-(userData[index].h/2)-32);
 		//draw arrows, well kind of...
 		display.beginPath();
-		display.moveTo((canvasWidth/2)-(userData[id].w/2),(canvasHeight/2)-(userData[id].h/2))
-		display.lineTo(userData[index].x-userData[id].x+(canvasWidth/2)-(userData[index].w/2),userData[index].y-userData[id].y+(canvasHeight/2)-(userData[index].h/2))
+		display.moveTo((canvasWidth/2)-(userData[id].w/2),(canvasHeight/2)-(userData[id].h/2));
+		display.lineTo(userData[index].x-userData[id].x+(canvasWidth/2)-(userData[index].w/2),userData[index].y-userData[id].y+(canvasHeight/2)-(userData[index].h/2));
 		display.stroke();
 	}
 	
+	for(let index in npcData) {
+		if(!npcData[index].isCar) {
+			npcData[index].ped.update(npcData[index].toIssue);
+		} else {
+			npcData[index].obj.update(npcData[index].toIssue);
+		}
+	}
+	
+	display.beginPath();
+	for(let i in nodeData) {
+			display.moveTo(nodeData[i].x-userData[id].x+(canvasWidth/2),nodeData[i].y-userData[id].y+(canvasHeight/2));
+			display.lineTo(nodeData[i].x2-userData[id].x+(canvasWidth/2),nodeData[i].y2-userData[id].y+(canvasHeight/2));
+	}
+	display.stroke();
+	
 	if(timer > 25) {
-		socket.emit('userUpdate',userData[id]);
+		socket.emit('userUpdate',userData[id]); //obligate the server to update
 		timer = 0; //send them our new coordinates
 	}
 	

@@ -47,18 +47,6 @@
 	"connected": "has connected",
 	"type": "type something"
 },
-"en-US":{
-	"car1": "pesok",
-	"car2": "strashno",
-	"car3": "kilorav",
-	"send": "send",
-	"server": "server",
-	"host": "host",
-	"user": "user",
-	"disconnected": "has disconnected",
-	"connected": "has connected",
-	"type": "type something"
-},
 "es":{
 	"car1": "pesok",
 	"car2": "strashno",
