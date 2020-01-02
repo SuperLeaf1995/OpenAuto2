@@ -1,4 +1,4 @@
-# OpenGTA2
+# OpenAuto2
 GTA2 clone made in JavaScript
 
 # Screenshots
