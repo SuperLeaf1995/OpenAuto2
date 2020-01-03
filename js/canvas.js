@@ -1,3 +1,6 @@
+//canvas.js
+//Defines and handles anything for canvas
+
 const c = document.getElementById("canvas");
 const d = c.getContext("2d");
 
