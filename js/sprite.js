@@ -5,6 +5,8 @@ sin = Math.sin;
 
 function rad(deg) { return deg*Math.PI/180; }
 
+//Boundary or hitbox object
+
 function BoundBox(x,y,w,h,rot) {
 	this.p = [{x:-(w/2), y:-(h/2)}, {x:w/2,y:-(h/2)}, {x:w/2,y:h/2}, {x:-(w/2),y:h/2}];
 	this.o = [{x:-(w/2), y:-(h/2)}, {x:w/2,y:-(h/2)}, {x:w/2,y:h/2}, {x:-(w/2),y:h/2}];
@@ -12,7 +14,6 @@ function BoundBox(x,y,w,h,rot) {
 
 	this.x = x; this.y = y; this.w = w; this.h = h;
 };
-
 
 BoundBox.prototype.collide = function(bb) {
 	// body...
@@ -28,6 +29,8 @@ BoundBox.prototype.update = function() {
 		}
 	}
 };
+
+//Sprite object
 
 function Sprite(display,image,x,y,rot,zoom) {
 	this.d = display;
