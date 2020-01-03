@@ -1,8 +1,31 @@
 //canvas.js
 //Defines and handles anything for canvas
+//And other stuff
 
 const c = document.getElementById("canvas");
 const d = c.getContext("2d");
+
+console.log('Loading canvas.js');
+
+function line(x,y,x1,y1) {
+	d.moveTo(x,y);
+	d.lineTo(x1,y1);
+	d.stroke();
+}
+
+function play(x) {
+	x.play();
+	console.log('Playing ' + x.src);
+}
+
+function stop(x) {
+	x.pause();
+	console.log('Stopping ' + x.src);
+}
+
+function cssToRGB(r,g,b) {
+	return "rgb(" + r + "," + g + "," + b + ")";
+}
 
 console.log('Setting canvas');
 
