@@ -5,7 +5,7 @@ GTA2 clone made in JavaScript. You can see a live view [here](https://superleaf1
 * https://discord.gg/JFp7QxP
 
 # Contribution
-Want to contribute?, Feel free to do a poll request.
+Want to contribute?, Feel free to do a pull request.
 
 # Credits
 * [minus](https://github.com/minusyt23) - Doing the physics and game engine stuff (basically the core)
