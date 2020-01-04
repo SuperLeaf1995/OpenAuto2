@@ -1,5 +1,5 @@
 # OpenAuto2
-GTA2 clone made in JavaScript
+GTA2 clone made in JavaScript. You can see a live view [here](https://superleaf1995.github.io/OpenAuto2/car.html)
 
 # Social Media
 * https://discord.gg/JFp7QxP
