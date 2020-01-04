@@ -2,7 +2,7 @@
 GTA2 clone made in JavaScript
 
 # Social Media
-https://discord.gg/JFp7QxP
+* https://discord.gg/JFp7QxP
 
 # Credits
 * [minus](https://github.com/minusyt23) - Doing the physics and game engine stuff (basically the core)
