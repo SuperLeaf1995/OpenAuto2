@@ -1,39 +1,79 @@
 //define the constants for the canvas and the 2d thing
-const c = document.getElementById("canvas");
-const d = c.getContext("2d");
+const canvas = document.getElementById("canvas");
+const display = canvas.getContext("2d");
 
 //set canvas size depending on device wide and height
 if(window.devicePixelRatio > 1) {
-	c.width =  (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth)*2;
-	c.height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight)*2;
-	d.scale(2,2);
+	canvas.width =  (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth)*2;
+	canvas.height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight)*2;
+	display.scale(2,2);
 }
 else {
-	c.width =  window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	c.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+	canvas.width =  window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 }
 
+//keymaps
+var keymapper = {};
+//limiters for cars
+var movVel = 0; const movMax = 10; const movStep = 0.1;
 //assign shortnames the size of the canvas
-var h = c.height;
-var w = c.width;
+var canvasHeight = canvas.height;
+var canvasWidth = canvas.width;
 //shortnames for math stuff
 var cos = Math.cos;
 var sin = Math.sin;
+//Used for cubes
+const cube_amount = 1000;
+const cube_radius = 2;
+let projection_center_x = (canvasWidth/2);
+let projection_center_y = (canvasHeight/2);
+let field_of_view = canvasWidth * 0.8;
+const cube_lines = [[0, 1], [1, 3], [3, 2], [2, 0], [2, 6], [3, 7], [0, 4], [1, 5], [6, 7], [6, 4], [7, 5], [4, 5]];
+const cube_vertices = [[-1, -1, -1],[1, -1, -1],[-1, 1, -1],[1, 1, -1],[-1, -1, 1],[1, -1, 1],[-1, 1, 1],[1, 1, 1]];
+
+var tileSize = 32;
+
+//assets
+//cuboid
+var f;
+var test = new MapTile(32); 
+var carImg = new Image();
+carImg.src = "img/car/car1.png";
+carImg.onload = function(){
+	f = new Sprite(display,this,100,100,0,1);
+	requestAnimationFrame(mainGame);
+};
 
 //--------------------------
 //Subfunctions
 //--------------------------
 
 //radian degrees
-function rad(deg) {
+function DegreesToRadians(deg) {
 	return deg*Math.PI/180;
 }
 
-function line(x,y,x1,y1) {
+function Line(x,y,x1,y1) {
 	d.moveTo(x,y);
 	d.lineTo(x1,y1);
 	d.stroke();
 }
+
+//--------------------------
+//Camera
+//--------------------------
+function Camera(x,y,z) {
+	this.x = x;
+	this.y = y;
+	this.z = z;
+};
+
+Camera.prototype.setNewCoords = function(x,y,z) {
+	this.x = x;
+	this.y = y;
+	this.z = z;
+};
 
 //--------------------------
 //Tile
@@ -42,6 +82,7 @@ function line(x,y,x1,y1) {
 function MapTile(radius) {
 	this.radius = radius;
 };
+
 MapTile.prototype.project = function(x,y,z) {
 	const sizeProjection = field_of_view / (field_of_view+z);
 	const xProject = (x*sizeProjection)+projection_center_x;
@@ -61,15 +102,15 @@ MapTile.prototype.setNew2DCoords = function(x,y) {
 	this.x = x;
 	this.y = y;
 };
-MapTile.prototype.update = function() {
-	let cubeX = ((-mainPlayer.x*5.5)+(canvasMainScreen.width/2))-(commonPlayerSize*8)-this.x;
-	let cubeY = ((-mainPlayer.y*5.5)+(canvasMainScreen.height/2))-(commonPlayerSize*8)-this.y;
-	let cubeZ = commonPlayerSize*32;
+MapTile.prototype.update = function(cameraX,cameraY,cameraZ) {
+	let cubeX = ((-cameraX*5.5)+(w/2))-(cameraZ*8)-this.x;
+	let cubeY = ((-cameraY*5.5)+(h/2))-(cameraZ*8)-this.y;
+	let cubeZ = tileSize*32;
 	this.x = cubeX;
 	this.y = cubeY;
 	this.z = cubeZ;
-	projection_center_x = (canvasMainScreen.width/2)-(mainPlayer.width/2);
-	projection_center_y = (canvasMainScreen.height/2)-(mainPlayer.height/2);
+	projection_center_x = (w/2)-(tileSize/2);
+	projection_center_y = (h/2)-(tileSize/2);
 };
 MapTile.prototype.draw = function() {
 	if(this.z < (-field_of_view + this.radius)) {
@@ -123,7 +164,7 @@ BoundBox.prototype.update = function() {
 //--------------------------
 
 function Sprite(display,image,x=50,y=50,rot=0,zoom=1) {
-	this.d = display;
+	this.display = display;
 	this.img = image;
 	this.zoom = zoom;
 	this.bb = new BoundBox(x,y,image.naturalWidth*zoom,image.naturalHeight*zoom,rot);
@@ -136,26 +177,12 @@ Sprite.prototype.move = function(steps) {
 Sprite.prototype.update = function() {
 	this.bb.update();
 	this.bb.w = this.img.naturalWidth*this.zoom; this.bb.h = this.img.naturalHeight*this.zoom;
-	this.d.translate(this.bb.x,this.bb.y);
-	this.d.rotate(this.bb.angle);
-	this.d.drawImage(this.img,(-this.bb.w/2),(-this.bb.h/2),this.bb.w,this.bb.h);
-	this.d.rotate(-this.bb.angle);
-	this.d.translate(-this.bb.x,-this.bb.y);
+	this.display.translate(this.bb.x,this.bb.y);
+	this.display.rotate(this.bb.angle);
+	this.display.drawImage(this.img,(-this.bb.w/2),(-this.bb.h/2),this.bb.w,this.bb.h);
+	this.display.rotate(-this.bb.angle);
+	this.display.translate(-this.bb.x,-this.bb.y);
 };
-
-//--------------------------
-//Main Game
-//--------------------------
-
-var f;
-var carImg = new Image();
-carImg.src = "img/car/car1.png";
-carImg.onload = function(){
-	f = new Sprite(d,this,100,100,0,1);
-	requestAnimationFrame(bruh);
-};
-var keymapper = {};
-var movVel = 0; const movMax = 10; const movStep = 0.1;
 
 //--------------------------
 //On( Event ) handlers
@@ -173,24 +200,28 @@ window.onkeyup = function(e)
 }
 //reply to a resize event
 window.onresize = function resize() {
-  //Browser was resized? No problem!, Just recalculate smh
-  if(window.devicePixelRatio > 1) {
-    c.width =  (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth)*2;
-    c.height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight)*2;
-    display.scale(2,2);
-  }
-  else {
-	c.width =  window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	c.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-  }
-  //reset the shortnames
-  h = c.height;
-  w = c.width;
-}
+	//Browser was resized? No problem!, Just recalculate smh
+	if(window.devicePixelRatio > 1) {
+	c.width =  (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth)*2;
+	c.height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight)*2;
+	display.scale(2,2);
+	}
+	else {
+		c.width =  window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+		c.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+	}
+	//reset the shortnames
+	canvasHeight = c.height;
+	canvasWidth = c.width;
+};
 
-d.strokeStyle = "#FFFFFF";
+//--------------------------
+//Main Game
+//--------------------------
 
-function bruh() {
+display.strokeStyle = "#00FF00";
+
+function mainGame() {
 	if (keymapper.w) {movVel >= movMax ? movVel = movMax :   movVel += movStep; }
 	if (keymapper.s) {movVel <= -movMax ? movVel = -movMax : movVel -= movStep; }
 	if (keymapper.d && movVel != 0) {f.bb.angle+=movVel/140; }
@@ -203,23 +234,27 @@ function bruh() {
 	
 	f.move(movVel);
 
-	d.clearRect(0,0,w,h);
-	d.fillRect(0,0,w,h);
+	display.clearRect(0,0,w,h);
+	display.fillRect(0,0,w,h);
 	
-	d.beginPath();
-	d.moveTo(f.bb.p[0].x,f.bb.p[0].y);
-	d.lineTo(f.bb.p[1].x,f.bb.p[1].y);
-	d.lineTo(f.bb.p[2].x,f.bb.p[2].y);
-	d.lineTo(f.bb.p[3].x,f.bb.p[3].y);
-	d.lineTo(f.bb.p[0].x,f.bb.p[0].y);
+	display.beginPath();
+	display.moveTo(f.bb.p[0].x,f.bb.p[0].y);
+	display.lineTo(f.bb.p[1].x,f.bb.p[1].y);
+	display.lineTo(f.bb.p[2].x,f.bb.p[2].y);
+	display.lineTo(f.bb.p[3].x,f.bb.p[3].y);
+	display.lineTo(f.bb.p[0].x,f.bb.p[0].y);
 
-	d.moveTo(f.bb.x,0)
-	d.lineTo(f.bb.x,f.bb.y);
+	display.moveTo(f.bb.x,0)
+	display.lineTo(f.bb.x,f.bb.y);
 
-	d.moveTo(0,f.bb.y)
-	d.lineTo(f.bb.x,f.bb.y);
+	display.moveTo(0,f.bb.y)
+	display.lineTo(f.bb.x,f.bb.y);
 
-	d.stroke();
+	display.stroke();
+	
+	test.setNewCoords(0,0,0);
+	test.update(30,30,20);
+	test.draw();
 	
 	f.update();
 
