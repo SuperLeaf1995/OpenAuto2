@@ -2,12 +2,6 @@
 var keymapper = {};
 //limiters for cars
 var movVel = 0; const movMax = 10; const movStep = 0.1;
-//assign shortnames the size of the canvas
-var canvasHeight = canvas.height;
-var canvasWidth = canvas.width;
-//shortnames for math stuff
-var cos = Math.cos;
-var sin = Math.sin;
 //Used for cubes
 const cube_amount = 1000;
 const cube_radius = 2;
@@ -65,7 +59,7 @@ function mainGame() {
 	
 	f.move(movVel);
 	
-	//display.clearRect(0,0,canvasWidth,canvasHeight);
+	display.clearRect(0,0,canvasWidth,canvasHeight);
 	display.fillRect(0,0,canvasWidth,canvasHeight);
 	
 	display.beginPath();

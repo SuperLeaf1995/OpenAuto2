@@ -2,16 +2,15 @@
 const canvas = document.getElementById("canvas");
 const display = canvas.getContext("2d");
 
-//set canvas size depending on device wide and height
-if(window.devicePixelRatio > 1) {
-	canvas.width =  (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth)*2;
-	canvas.height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight)*2;
-	display.scale(2,2);
-}
-else {
-	canvas.width =  window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-}
+canvas.width = 640;
+canvas.height = 400;
+
+var canvasHeight;
+var canvasWidth;
+
+//shortnames for math stuff
+var cos = Math.cos;
+var sin = Math.sin;
 
 //--------------------------
 //Subfunctions
@@ -20,6 +19,18 @@ else {
 //radian degrees
 function DegreesToRadians(deg) {
 	return deg*Math.PI/180;
+}
+
+function resizeCanvas() {
+	let h = window.innerHeight;
+	let r = canvas.width/canvas.height;
+	let w = h*r;
+
+	canvas.style.width = w+'px';
+	canvas.style.height = h+'px';
+
+	canvasHeight = canvas.height;
+	canvasWidth = canvas.width;
 }
 
 //--------------------------
@@ -146,19 +157,5 @@ Sprite.prototype.update = function() {
 //On(event)
 //--------------------------
 
-//reply to a resize event
-window.onresize = function resize() {
-	//Browser was resized? No problem!, Just recalculate smh
-	if(window.devicePixelRatio > 1) {
-		canvas.width =  (window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth)*2;
-		canvas.height = (window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight)*2;
-		display.scale(2,2);
-	}
-	else {
-		canvas.width =  window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-		canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-	}
-	//reset the shortnames
-	canvasHeight = canvas.height;
-	canvasWidth = canvas.width;
-};
+window.addEventListener('load',resizeCanvas,false);
+window.addEventListener('resize',resizeCanvas,false);

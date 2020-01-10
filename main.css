@@ -1,8 +1,8 @@
-html,body{
+html,body {
 	margin: 0;
+	overflow: hidden;
 }
 
-#canvas
-{
-	position: fixed;
+#canvas {
+ 	position: fixed;
 }
