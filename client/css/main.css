@@ -17,8 +17,30 @@ html,body {
 	background-color: black;
 	color: white;
 	font-family: arial;
-	opacity: 0.4;
+	opacity: 0.8;
 	overflow: auto;
+}
+
+input {
+	font-family: arial;
+}
+
+input[type=text] {
+	border-bottom: 1px solid yellow;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	background-color: black;
+	color: white;
+}
+
+button {
+	border-bottom: 1px solid yellow;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	background-color: black;
+	color: white;
 }
 
 #chat-text {

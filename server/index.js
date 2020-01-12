@@ -29,7 +29,8 @@ io.on('connection', function(socket) {
 		id: socket.id, //send socket id
 		rot: 0, //rotation is zero
 		skin: 'img/car/car1.png', //default sprite for player car
-		toIssue: 8 //defaults to no key pressed
+		toIssue: 8, //defaults to no key pressed
+		nick: 'SOCKET_'+socket.id
 	};
 	
 	userData[socket.id] = userStruct; //create new blank user struct
@@ -37,14 +38,14 @@ io.on('connection', function(socket) {
 	console.log('User '+socket.id+' has connected'); //log new socket.id
 
 	socket.emit('userReg',userData); //update all sockets
-	io.emit('userSpreadMessage','[SERVER]:Socket '+socket.id+' connected');
+	io.emit('userSpreadMessage','[SERVER]:Socket '+userData[socket.id].nick+' connected');
 
 	socket.on('disconnect', function() {
 		delete userData[socket.id];
 		console.log('User '+socket.id+' has disconnected'); //command log
 		socket.emit('userDel',socket.id); //tell all sockets that this one is dead
 		socket.emit('userReg',userData); //update all sockets
-		io.emit('userSpreadMessage','[SERVER]:Socket '+socket.id+' disconnected');
+		io.emit('userSpreadMessage','[SERVER]:Socket '+userData[socket.id].nick+' disconnected');
 	});
 	
 	socket.on('userUpdate', function(data) {
@@ -53,12 +54,16 @@ io.on('connection', function(socket) {
 		userData[socket.id].y = data.obj.sprite.bb.y;
 		userData[socket.id].z = data.obj.sprite.zoom;
 		userData[socket.id].rot = data.obj.sprite.bb.angle;
-		console.log(userData);
 		socket.emit('userReg',userData); //give them our stuff
 	});
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message
-		console.log(socket.id+': '+msg);
-		io.emit('userSpreadMessage','['+socket.id+']:'+msg); //lets spread it
+		if(msg.match(/nick/i)) {
+			msg = msg.slice(6);
+			console.log('someone set their nick to '+msg);
+			userData[socket.id].nick = msg;
+		}
+		console.log(userData[socket.id].nick+': '+msg);
+		io.emit('userSpreadMessage','['+userData[socket.id].nick+']:'+msg); //lets spread it
 	});
 });
