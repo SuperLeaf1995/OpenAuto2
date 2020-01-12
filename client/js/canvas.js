@@ -21,8 +21,6 @@ var tileSize = 32; //size of tile
 var cos = Math.cos;
 var sin = Math.sin;
 
-//{} []
-
 //--------------------------
 //Subfunctions
 //--------------------------

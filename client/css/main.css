@@ -6,3 +6,31 @@ html,body {
 #canvas {
  	position: fixed;
 }
+
+#chat {
+	z-index: 101;
+	position: absolute;
+	top: 50%;
+	left: 0px;
+	height: 50%;
+	width: 25%;
+	background-color: black;
+	color: white;
+	font-family: arial;
+	opacity: 0.4;
+	overflow: auto;
+}
+
+#chat-text {
+	background-color: white;
+	color: black;
+}
+
+li {
+	list-style: none;
+	left: 0px;
+	font-size: 12px;
+	border-color: red;
+	background-color: white;
+	color: black;
+}

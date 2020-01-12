@@ -54,4 +54,9 @@ io.on('connection', function(socket) {
 		console.log(userData);
 		socket.emit('userReg',userData); //give them our stuff
 	});
+	
+	socket.on('userSendMessage', function(msg) { //they givin us they message
+		console.log(socket.id+': '+msg);
+		socket.emit('userSpreadMessage',msg); //lets spread it
+	});
 });

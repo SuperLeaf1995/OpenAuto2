@@ -17,8 +17,7 @@ function keyDown(e) {
 
 function resizeCanvas() {
 	let h = window.innerHeight;
-	let r = canvas.width/canvas.height;
-	let w = h*r;
+	let w = window.innerWidth;
 
 	canvas.style.width = w+'px';
 	canvas.style.height = h+'px';
