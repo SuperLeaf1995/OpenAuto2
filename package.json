@@ -1,6 +1,24 @@
 {
-	"name": "openauto2",
-	"version": "0.0.1",
-	"description": "gta2 clone made in javascript",
-	"dependencies": {}
+  "name": "openauto2",
+  "version": "0.0.1",
+  "description": "gta2 clone made in javascript",
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "dependencies": {},
+  "main": "index.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SuperLeaf1995/OpenAuto2.git"
+  },
+  "keywords": [
+    "nodejs"
+  ],
+  "author": "the OpenAuto2 contributors",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SuperLeaf1995/OpenAuto2/issues"
+  },
+  "homepage": "https://github.com/SuperLeaf1995/OpenAuto2#readme"
 }
