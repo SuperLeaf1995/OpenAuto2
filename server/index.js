@@ -57,6 +57,6 @@ io.on('connection', function(socket) {
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message
 		console.log(socket.id+': '+msg);
-		socket.emit('userSpreadMessage',msg); //lets spread it
+		io.emit('userSpreadMessage',msg); //lets spread it
 	});
 });
