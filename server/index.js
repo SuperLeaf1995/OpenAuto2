@@ -7,7 +7,7 @@ const io = require('socket.io')(http);
 const path = require('path');
 
 //the port number
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 var userData = {};
 
