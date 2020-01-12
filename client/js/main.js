@@ -1,4 +1,4 @@
-var socket = io('http://localhost:3000/'); //create a new socket!
+var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
 
 //limiters for cars
 const movMax = 10;
