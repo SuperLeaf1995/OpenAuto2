@@ -20,7 +20,7 @@ http.listen(port, function() {
 	console.log('listening on server:'+port);
 });
 
-io.on('connection', function(socket) {	
+io.on('connection', function(socket) {
 	let userStruct = {
 		online: true, //boolean of status
 		x: 0, //x coordinate
@@ -37,12 +37,14 @@ io.on('connection', function(socket) {
 	console.log('User '+socket.id+' has connected'); //log new socket.id
 
 	socket.emit('userReg',userData); //update all sockets
+	io.emit('userSpreadMessage','[SERVER]:Socket '+socket.id+' connected');
 
 	socket.on('disconnect', function() {
 		delete userData[socket.id];
 		console.log('User '+socket.id+' has disconnected'); //command log
 		socket.emit('userDel',socket.id); //tell all sockets that this one is dead
 		socket.emit('userReg',userData); //update all sockets
+		io.emit('userSpreadMessage','[SERVER]:Socket '+socket.id+' disconnected');
 	});
 	
 	socket.on('userUpdate', function(data) {
@@ -57,6 +59,6 @@ io.on('connection', function(socket) {
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message
 		console.log(socket.id+': '+msg);
-		io.emit('userSpreadMessage',msg); //lets spread it
+		io.emit('userSpreadMessage','['+socket.id+']:'+msg); //lets spread it
 	});
 });

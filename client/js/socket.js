@@ -1,5 +1,5 @@
-var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
-//var socket = io('http://localhost:5000/');
+//var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
+var socket = io('http://localhost:5000/');
 
 var mainCamera = new Camera(0,0,1);
 var userData = {};
