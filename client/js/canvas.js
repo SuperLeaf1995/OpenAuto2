@@ -111,6 +111,10 @@ function BoundBox(x,y,w,h,rot) {
 	this.o = [{x:-(w/2), y:-(h/2)}, {x:w/2,y:-(h/2)}, {x:w/2,y:h/2}, {x:-(w/2),y:h/2}];
 	this.angle = rot;
 	this.x = x; this.y = y; this.w = w; this.h = h;
+	
+	this.oldX = this.x;
+	this.oldY = this.y;
+	this.oldAngle = this.angle;
 };
 BoundBox.prototype.collide = function(bb) {
 	// body...

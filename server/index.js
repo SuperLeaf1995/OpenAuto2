@@ -28,18 +28,30 @@ io.on('connection', function(socket) {
 		z: 0, //zoom
 		id: socket.id, //send socket id
 		rot: 0, //rotation is zero
-		skin: 'img/car/car1.png' //default sprite for player car
+		skin: 'img/car/car1.png', //default sprite for player car
+		toIssue: 8 //defaults to no key pressed
 	};
+	
 	userData[socket.id] = userStruct; //create new blank user struct
 	
 	console.log('User '+socket.id+' has connected'); //log new socket.id
-	console.log(userData); //log current data structure
-	socket.emit('userUpdate',userData); //on creation update
+
+	socket.emit('userReg',userData); //update all sockets
 
 	socket.on('disconnect', function() {
 		delete userData[socket.id];
 		console.log('User '+socket.id+' has disconnected'); //command log
 		socket.emit('userDel',socket.id); //tell all sockets that this one is dead
-		socket.emit('userUpdate',userData); //update sockets
+		socket.emit('userReg',userData); //update all sockets
+	});
+	
+	socket.on('userUpdate', function(data) {
+		userData[socket.id].obj = data.obj; //update our data
+		userData[socket.id].x = data.obj.sprite.bb.x;
+		userData[socket.id].y = data.obj.sprite.bb.y;
+		userData[socket.id].z = data.obj.sprite.zoom;
+		userData[socket.id].rot = data.obj.sprite.bb.angle;
+		console.log(userData);
+		socket.emit('userReg',userData); //give them our stuff
 	});
 });

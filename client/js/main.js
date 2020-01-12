@@ -11,20 +11,18 @@ var id;
 socket.on('connect',function() {
 	console.log('Connection established');
 	console.log('Assigned socket id: '+socket.io.engine.id);
-	
 	id = socket.io.engine.id;
 	display.fillStyle = 'black';
-	requestAnimationFrame(mainGame);
 });
 
-socket.on('userUpdate',function(user) {
+socket.on('userReg',function(user) {
 	userData = user; //the stuff  from user is now in our local thing
-	console.log(userData); //display local user data
-});
-
-socket.on('userNew',function(data) {
-	console.log('New user');
-	userData[data.id] = new Car(data.x,data.y,data.z,data.skin,display,mainCamera,false,data.rot);
+	console.log(userData);
+	for(let index in userData) {
+		delete userData[index].obj;
+		userData[index].obj = new Car(userData[index].x,userData[index].y,userData[index].z,userData[index].skin,display,mainCamera,false,userData[index].rot);
+	}
+	requestAnimationFrame(mainGame);
 });
 
 socket.on('userDel',function(i) {
@@ -55,17 +53,16 @@ Car.prototype.update = function(issue) {
 		this.movVel -= movStep
 	} if (!(issue === 0 || issue === 1 || issue === 4 || issue === 5 || issue === 6 || issue === 7) && this.movVel < 0) {
 		this.movVel += movStep
-	};
+	}
 	
 	if (this.movVel > 0 && this.movVel < 0.1) {
 		this.movVel = 0
 	}
 	if (this.movVel < 0 && this.movVel > -0.1) {
 		this.movVel = 0
-	};
+	}
 	
 	this.sprite.move(this.movVel);
-	this.sprite.bb.drawBoundBox(this.display);
 	this.sprite.update();
 };
 
@@ -76,19 +73,27 @@ Car.prototype.update = function(issue) {
 var toIssue;
 
 function mainGame() {
-	if (keymapper.w && !(keymapper.a) && !(keymapper.d)) { toIssue = 0; } //advance, no turn
-	else if (keymapper.s  && !(keymapper.a) && !(keymapper.d)) { toIssue = 1; } //backwards
-	else if (keymapper.d && !(keymapper.w) && !(keymapper.s)) { toIssue = 2; } //turn, no forward
-	else if (keymapper.a && !(keymapper.w) && !(keymapper.s)) { toIssue = 3; } //^
-	else if (keymapper.d && keymapper.w && !(keymapper.s)) { toIssue = 4; } //turn, forward
-	else if (keymapper.a && keymapper.w && !(keymapper.s)) { toIssue = 5; } //^
-	else if (keymapper.d && keymapper.s && !(keymapper.w)) { toIssue = 6; } //turn, backward
-	else if (keymapper.a && keymapper.s && !(keymapper.w)) { toIssue = 7; } //^
-	else { toIssue = 8; } //no key
+	if (keymapper.w && !(keymapper.a) && !(keymapper.d)) { userData[id].toIssue = 0; } //advance, no turn
+	else if (keymapper.s  && !(keymapper.a) && !(keymapper.d)) { userData[id].toIssue = 1; } //backwards
+	else if (keymapper.d && !(keymapper.w) && !(keymapper.s)) { userData[id].toIssue = 2; } //turn, no forward
+	else if (keymapper.a && !(keymapper.w) && !(keymapper.s)) { userData[id].toIssue = 3; } //^
+	else if (keymapper.d && keymapper.w && !(keymapper.s)) { userData[id].toIssue = 4; } //turn, forward
+	else if (keymapper.a && keymapper.w && !(keymapper.s)) { userData[id].toIssue = 5; } //^
+	else if (keymapper.d && keymapper.s && !(keymapper.w)) { userData[id].toIssue = 6; } //turn, backward
+	else if (keymapper.a && keymapper.s && !(keymapper.w)) { userData[id].toIssue = 7; } //^
+	else { userData[id].toIssue = 8; } //no key
 	
 	//display.clearRect(0,0,canvasWidth,canvasHeight);
 	display.fillRect(0,0,canvasWidth,canvasHeight);
 	
-	userData[socket.io.engine.id].update(toIssue);
+	if(Math.random() < 0.05) {
+		socket.emit('userUpdate',userData[id]); //send them our new coordinates
+	}
+
+	for(let index in userData) {
+		userData[index].obj.update(userData[index].toIssue);
+	}
+	
+	userData[id].toIssue = 8;
 	requestAnimationFrame(mainGame);
 }
