@@ -30,7 +30,7 @@ io.on('connection', function(socket) {
 		rot: 0, //rotation is zero
 		skin: 'img/car/car1.png', //default sprite for player car
 		toIssue: 8, //defaults to no key pressed
-		nick: 'SOCKET_'+socket.id
+		nick: Math.floor(Math.random()*100)
 	};
 	
 	userData[socket.id] = userStruct; //create new blank user struct
@@ -67,6 +67,7 @@ io.on('connection', function(socket) {
 			msg = msg.slice(6);
 			console.log('someone set their nick to '+msg);
 			userData[socket.id].nick = msg;
+			return;
 		}
 		console.log(userData[socket.id].nick+': '+msg);
 		io.emit('userSpreadMessage','['+userData[socket.id].nick+']:'+msg); //lets spread it

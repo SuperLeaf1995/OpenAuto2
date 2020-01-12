@@ -1,22 +1,13 @@
 //chat messages
 let inputBox = document.getElementById('chatbox');
-let rand = Math.random();
-if(rand < 0.1) { inputBox.placeholder = "Type wisely"; }
-else if(rand < 0.2) { inputBox.placeholder = "Type something"; }
-else if(rand < 0.3) { inputBox.placeholder = "Type with the mouse"; }
-else if(rand < 0.4) { inputBox.placeholder = "Type with a keyboard"; }
-else if(rand < 0.5) { inputBox.placeholder = "Long live PS/2, use a PS/2 keyboard"; }
-else if(rand < 0.6) { inputBox.placeholder = "Use your hands to type something in this area"; }
-else if(rand < 0.7) { inputBox.placeholder = "Type with your hands"; }
-else if(rand < 0.8) { inputBox.placeholder = "Type with the eyes"; }
-else if(rand < 0.9) { inputBox.placeholder = "Type anything"; }
-else if(rand < 1) { inputBox.placeholder = "T y p e   a n y t h i n g . . ."; }
+inputBox.placeholder = "Type wisely";
 
 //--------------------------
 //Main Game
 //--------------------------
 
 var toIssue;
+var timer = 80;
 
 function mainGame() {
 	if (keymapper.w && !(keymapper.a) && !(keymapper.d)) { userData[id].toIssue = 0; } //advance, no turn
@@ -32,8 +23,9 @@ function mainGame() {
 	//display.clearRect(0,0,canvasWidth,canvasHeight);
 	display.fillRect(0,0,canvasWidth,canvasHeight);
 	
-	if(Math.random() < 0.003) {
+	if(timer > 80) {
 		socket.emit('userUpdate',userData[id]); //send them our new coordinates
+		timer = 0;
 	}
 
 	for(let index in userData) {
@@ -41,5 +33,6 @@ function mainGame() {
 	}
 	
 	userData[id].toIssue = 8;
+	timer++;
 	requestAnimationFrame(mainGame);
 }

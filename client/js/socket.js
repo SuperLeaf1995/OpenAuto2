@@ -47,4 +47,6 @@ function sendMessage() {
 	}
 		
 	socket.emit('userSendMessage',a.value);
+
+	a.value === "";
 }

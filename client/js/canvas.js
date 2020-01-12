@@ -154,18 +154,17 @@ BoundBox.prototype.drawBoundBox = function(d) {
 //Sprite
 //--------------------------
 
-function Sprite(display,image,x,y,rot,cam,focus) {
-	this.display = display;
+function Sprite(d,image,x,y,rot,cam) {
+	this.display = d;
 	this.img = image;
 	this.zoom = cam.zoom;
 	this.cam = cam;
-	this.focus = focus;
 	this.bb = new BoundBox(x,y,image.naturalWidth*this.zoom,image.naturalHeight*this.zoom,rot,cam);
 };
 Sprite.prototype.move = function(steps) {
 	// todo very do very | javidx convex polygons
-	this.bb.x += cos(this.bb.angle) * steps;
-	this.bb.y += sin(this.bb.angle) * steps;
+	this.bb.x += cos(this.bb.angle)*steps;
+	this.bb.y += sin(this.bb.angle)*steps;
 };
 Sprite.prototype.update = function() {
 	this.zoom = this.cam.zoom;

@@ -13,12 +13,12 @@ html,body {
 	top: 50%;
 	left: 0px;
 	height: 50%;
-	width: 25%;
+	width: 30%;
 	background-color: black;
 	color: white;
 	font-family: arial;
 	opacity: 0.8;
-	overflow: auto;
+	overflow: hidden;
 }
 
 input {
@@ -26,6 +26,10 @@ input {
 }
 
 input[type=text] {
+	position: absolute;
+	top: 95%;
+	left: 30%;
+	width: 20%;
 	border-bottom: 1px solid yellow;
 	border-top: none;
 	border-left: none;
@@ -35,6 +39,9 @@ input[type=text] {
 }
 
 button {
+	position: absolute;
+	top: 95%;
+	left: 50%;
 	border-bottom: 1px solid yellow;
 	border-top: none;
 	border-left: none;
@@ -44,15 +51,14 @@ button {
 }
 
 #chat-text {
-	background-color: white;
-	color: black;
+	background-color: black;
+	color: yellow;
 }
 
 li {
 	list-style: none;
 	left: 0px;
 	font-size: 12px;
-	border-color: red;
-	background-color: white;
-	color: black;
+	background-color: black;
+	color: yellow;
 }

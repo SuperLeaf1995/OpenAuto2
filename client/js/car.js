@@ -2,13 +2,12 @@
 const movMax = 10;
 const movStep = 0.1;
 
-function Car(x,y,z,src,d,cam,f,rot) {
-	this.focus = f;
+function Car(x,y,z,src,d,cam,rot) {
 	this.usedCam = cam;
 	this.img = new Image();
 	this.img.src = src;
 	this.display = d;
-	this.sprite = new Sprite(d,this.img,x,y,rot,this.usedCam,this.focus);
+	this.sprite = new Sprite(d,this.img,x,y,rot,this.usedCam);
 	this.movVel = 0;
 };
 
