@@ -1,16 +1,27 @@
 //define the constants for the canvas and the 2d thing
 const canvas = document.getElementById("canvas");
 const display = canvas.getContext("2d");
-
-canvas.width = 640;
+//define the real widht and height of the canvas
+canvas.width = 800;
 canvas.height = 400;
-
+//define the canvas size variables
 var canvasHeight;
 var canvasWidth;
+
+//used for cube and maptile calculations
+const cube_radius = 2;
+let projection_center_x = (canvasWidth/2);
+let projection_center_y = (canvasHeight/2);
+let field_of_view = canvasWidth * 0.8;
+const cube_lines = [[0,1],[1,3],[3,2],[2,0],[2,6],[3,7],[0,4],[1,5],[6,7],[6,4],[7,5],[4,5]];
+const cube_vertices = [[-1,-1,-1],[1,-1,-1],[-1,1,-1],[1,1,-1],[-1,-1,1],[1,-1,1],[-1,1,1],[1,1,1]];
+var tileSize = 32; //size of tile
 
 //shortnames for math stuff
 var cos = Math.cos;
 var sin = Math.sin;
+
+//{} []
 
 //--------------------------
 //Subfunctions
@@ -21,31 +32,18 @@ function DegreesToRadians(deg) {
 	return deg*Math.PI/180;
 }
 
-function resizeCanvas() {
-	let h = window.innerHeight;
-	let r = canvas.width/canvas.height;
-	let w = h*r;
-
-	canvas.style.width = w+'px';
-	canvas.style.height = h+'px';
-
-	canvasHeight = canvas.height;
-	canvasWidth = canvas.width;
-}
-
 //--------------------------
 //Camera
 //--------------------------
 function Camera(x,y,z) {
 	this.x = x;
 	this.y = y;
-	this.z = z;
+	this.zoom = z;
 };
-
 Camera.prototype.setNewCoords = function(x,y,z) {
 	this.x = x;
 	this.y = y;
-	this.z = z;
+	this.zoom = z;
 };
 
 //--------------------------
@@ -55,7 +53,6 @@ Camera.prototype.setNewCoords = function(x,y,z) {
 function MapTile(radius) {
 	this.radius = radius;
 };
-
 MapTile.prototype.project = function(x,y,z) {
 	const sizeProjection = field_of_view / (field_of_view+z);
 	const xProject = (x*sizeProjection)+projection_center_x;
@@ -81,7 +78,7 @@ MapTile.prototype.update = function(cameraX,cameraY,cameraZ) {
 	projection_center_x = (canvasWidth/2)-(tileSize/2);
 	projection_center_y = (canvasHeight/2)-(tileSize/2);
 };
-MapTile.prototype.draw = function() {
+MapTile.prototype.draw = function(d) {
 	if(this.z < (-field_of_view + this.radius)) {
 		return;
 	}
@@ -98,10 +95,10 @@ MapTile.prototype.draw = function() {
 		};
 		const v1Project = this.project(v1.x, v1.y, v1.z);
 		const v2Project = this.project(v2.x, v2.y, v2.z);
-		display.beginPath();
-		display.moveTo(v1Project.x, v1Project.y);
-		display.lineTo(v2Project.x, v2Project.y);
-		display.stroke();
+		d.beginPath();
+		d.moveTo(v1Project.x, v1Project.y);
+		d.lineTo(v2Project.x, v2Project.y);
+		d.stroke();
 	}
 };
 
@@ -127,16 +124,41 @@ BoundBox.prototype.update = function() {
 		}
 	}
 };
+BoundBox.prototype.drawBoundBox = function(d) {
+	d.beginPath();
+	
+	//draw the box of the boundary box
+	d.moveTo(this.p[0].x,this.p[0].y);
+	d.lineTo(this.p[1].x,this.p[1].y);
+	d.lineTo(this.p[2].x,this.p[2].y);
+	d.lineTo(this.p[3].x,this.p[3].y);
+	d.lineTo(this.p[0].x,this.p[0].y);
+	
+	//angle-ignoring lines that overmarks where the boundbox is
+	d.moveTo(this.x,0); //x
+	d.lineTo(this.x,this.y);
+	d.moveTo(0,this.y); //y
+	d.lineTo(this.x,this.y);
+	//lines marked from the other side
+	d.moveTo(this.x,canvasHeight);
+	d.lineTo(this.x,this.y);
+	d.moveTo(canvasWidth,this.y);
+	d.lineTo(this.x,this.y);
+	
+	display.stroke();
+};
 
 //--------------------------
 //Sprite
 //--------------------------
 
-function Sprite(display,image,x=50,y=50,rot=0,zoom=1) {
+function Sprite(display,image,x,y,rot,cam,focus) {
 	this.display = display;
 	this.img = image;
-	this.zoom = zoom;
-	this.bb = new BoundBox(x,y,image.naturalWidth*zoom,image.naturalHeight*zoom,rot);
+	this.zoom = cam.zoom;
+	this.cam = cam;
+	this.focus = focus;
+	this.bb = new BoundBox(x,y,image.naturalWidth*this.zoom,image.naturalHeight*this.zoom,rot,cam);
 };
 Sprite.prototype.move = function(steps) {
 	// todo very do very | javidx convex polygons
@@ -144,6 +166,7 @@ Sprite.prototype.move = function(steps) {
 	this.bb.y += sin(this.bb.angle) * steps;
 };
 Sprite.prototype.update = function() {
+	this.zoom = this.cam.zoom;
 	this.bb.update();
 	this.bb.w = this.img.naturalWidth*this.zoom; this.bb.h = this.img.naturalHeight*this.zoom;
 	this.display.translate(this.bb.x,this.bb.y);
@@ -152,10 +175,3 @@ Sprite.prototype.update = function() {
 	this.display.rotate(-this.bb.angle);
 	this.display.translate(-this.bb.x,-this.bb.y);
 };
-
-//--------------------------
-//On(event)
-//--------------------------
-
-window.addEventListener('load',resizeCanvas,false);
-window.addEventListener('resize',resizeCanvas,false);
