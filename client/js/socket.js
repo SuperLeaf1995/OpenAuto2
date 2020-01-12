@@ -1,5 +1,5 @@
-var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
-//var socket = io('http://localhost:5000/');
+//var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
+var socket = io('http://localhost:5000/');
 
 var mainCamera = new Camera(0,0,1);
 var userData = {};
@@ -35,6 +35,8 @@ socket.on('userSpreadMessage',function(msg) {
 	
 	a.appendChild(b); //appends text to li
 	c.appendChild(a); //appends li to the chat div
+	
+	c.scrollBy(0,50);
 });
 
 function sendMessage() {

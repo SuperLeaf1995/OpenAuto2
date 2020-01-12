@@ -41,11 +41,12 @@ io.on('connection', function(socket) {
 	io.emit('userSpreadMessage','[SERVER]:Socket '+userData[socket.id].nick+' connected');
 
 	socket.on('disconnect', function() {
+		io.emit('userSpreadMessage','[SERVER]:Socket '+userData[socket.id].nick+' disconnected');
+
 		delete userData[socket.id];
 		console.log('User '+socket.id+' has disconnected'); //command log
 		socket.emit('userDel',socket.id); //tell all sockets that this one is dead
 		socket.emit('userReg',userData); //update all sockets
-		io.emit('userSpreadMessage','[SERVER]:Socket '+userData[socket.id].nick+' disconnected');
 	});
 	
 	socket.on('userUpdate', function(data) {
@@ -58,6 +59,10 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message
+		if(userData[socket.id].nick === undefined) {
+			userData[socket.id].nick = 'undefinedError';
+		}
+		
 		if(msg.match(/nick/i)) {
 			msg = msg.slice(6);
 			console.log('someone set their nick to '+msg);
