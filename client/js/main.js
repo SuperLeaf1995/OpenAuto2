@@ -86,7 +86,7 @@ function mainGame() {
 	//display.clearRect(0,0,canvasWidth,canvasHeight);
 	display.fillRect(0,0,canvasWidth,canvasHeight);
 	
-	if(Math.random() < 0.05) {
+	if(Math.random() < 0.003) {
 		socket.emit('userUpdate',userData[id]); //send them our new coordinates
 	}
 
