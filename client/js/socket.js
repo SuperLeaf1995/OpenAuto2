@@ -17,7 +17,7 @@ socket.on('userReg',function(user) {
 	console.log(userData);
 	for(let index in userData) {
 		delete userData[index].obj;
-		userData[index].obj = new Car(userData[index].x,userData[index].y,userData[index].z,userData[index].skin,display,mainCamera,false,userData[index].rot);
+		userData[index].obj = new Car(userData[index].x,userData[index].y,userData[index].z,userData[index].skin,display,mainCamera,userData[index].rot);
 	}
 	requestAnimationFrame(mainGame);
 });
