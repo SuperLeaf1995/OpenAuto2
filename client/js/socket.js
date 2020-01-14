@@ -1,5 +1,5 @@
-var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
-//var socket = io('http://localhost:5000/');
+//var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
+var socket = io('http://localhost:5000/');
 
 var mainCamera = new Camera(0,0,1);
 var userData = {};
@@ -14,7 +14,6 @@ socket.on('connect',function() {
 
 socket.on('userReg',function(user) {
 	userData = user; //the stuff  from user is now in our local thing
-	console.log(userData);
 	for(let index in userData) {
 		delete userData[index].obj;
 		userData[index].obj = new Car(userData[index].x,userData[index].y,userData[index].z,userData[index].skin,display,mainCamera,userData[index].rot);

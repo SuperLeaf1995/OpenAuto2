@@ -1,10 +1,17 @@
 //keymaps
 var keymapper = {};
 
-window.addEventListener('keyup',keyUp,false);
-window.addEventListener('keydown',keyDown,false);
-window.addEventListener('load',resizeCanvas,false);
-window.addEventListener('resize',resizeCanvas,false);
+if(window.addEventListener) {
+	window.addEventListener('keyup',keyUp);
+	window.addEventListener('keydown',keyDown);
+	window.addEventListener('load',resizeCanvas);
+	window.addEventListener('resize',resizeCanvas);
+} else {
+	window.attachEvent('keyup',keyUp);
+	window.attachEvent('keydown',keyDown);
+	window.attachEvent('load',resizeCanvas);
+	window.attachEvent('resize',resizeCanvas);
+}
 
 window.setInterval(function() {
 	let e = document.getElementById('chat');
