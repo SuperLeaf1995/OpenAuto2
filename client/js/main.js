@@ -20,8 +20,8 @@ function mainGame() {
 	else if (keymapper.a && keymapper.s && !(keymapper.w)) { userData[id].toIssue = 7; } //^
 	else { userData[id].toIssue = 8; } //no key
 	
-	//display.clearRect(0,0,canvasWidth,canvasHeight);
-	display.fillRect(0,0,canvasWidth,canvasHeight);
+	display.clearRect(0,0,canvasWidth,canvasHeight);
+	//display.fillRect(0,0,canvasWidth,canvasHeight);
 	
 	if(timer > 80) {
 		socket.emit('userUpdate',userData[id]); //send them our new coordinates
