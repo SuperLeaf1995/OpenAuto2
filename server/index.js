@@ -10,6 +10,8 @@ const path = require('path');
 const port = process.env.PORT || 5000;
 
 var userData = {};
+var messages = {};
+var messageCount = 0;
 
 app.get(path.normalize(__dirname+'/../client/'),function(req, res) {
 	console.log('Sending requested index.html file via: '+req.method);
@@ -38,6 +40,8 @@ io.on('connection', function(socket) {
 	console.log('User '+socket.id+' has connected'); //log new socket.id
 
 	socket.emit('userReg',userData); //update all sockets
+	socket.emit('userGetChatHistory',messages);
+	
 	io.emit('userSpreadMessage','[SERVER]:Socket '+userData[socket.id].nick+' connected');
 
 	socket.on('disconnect', function() {
@@ -59,10 +63,6 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message
-		if(userData[socket.id].nick === undefined) {
-			userData[socket.id].nick = 'undefinedError';
-		}
-		
 		if(msg.match(/nick/i)) {
 			msg = msg.slice(6);
 			console.log('someone set their nick to '+msg);
@@ -71,5 +71,7 @@ io.on('connection', function(socket) {
 		}
 		console.log(userData[socket.id].nick+': '+msg);
 		io.emit('userSpreadMessage','['+userData[socket.id].nick+']:'+msg); //lets spread it
+		messages[messageCount] = msg;
+		messageCount++;
 	});
 });

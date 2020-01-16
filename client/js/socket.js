@@ -25,6 +25,18 @@ socket.on('userDel',function(i) {
 	delete userData[i]; //delete specified user out of array shit
 });
 
+socket.on('userGetChatHistory',function(messages) {
+	for(let i in messages) {
+		console.log(messages[i]);
+		let a = document.createElement('li'); //the li element
+		let b = document.createTextNode(messages[i]); //content in li
+		let c = document.getElementById('textland'); //where to put li
+		a.appendChild(b); //appends text to li
+		c.appendChild(a); //appends li to the chat div
+		c.scrollBy(0,50);
+	}
+});
+
 socket.on('userSpreadMessage',function(msg) {
 	console.log(msg);
 	let a = document.createElement('li'); //the li element
