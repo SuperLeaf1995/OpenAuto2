@@ -30,6 +30,7 @@ function mainGame() {
 
 	for(let index in userData) {
 		userData[index].obj.update(userData[index].toIssue);
+		display.fillText(userData[index].nick,userData[index].obj.sprite.bb.x,userData[index].obj.sprite.bb.y+32);
 	}
 	
 	userData[id].toIssue = 8;
