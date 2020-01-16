@@ -77,3 +77,11 @@ io.on('connection', function(socket) {
 		console.log(msg);
 	}
 });
+
+process.once('SIGINT',function() {
+	console.log('Shutdown signal received');
+	console.log('Informing sockets of server closing');
+	io.emit('userSpreadMessage','[HOST]: Server shutdown');
+	console.log('Shutdowning the HTTP server');
+	http.close();
+});
