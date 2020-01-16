@@ -34,21 +34,18 @@ io.on('connection', function(socket) {
 		toIssue: 8, //defaults to no key pressed
 		nick: Math.floor(Math.random()*100)
 	};
-	
 	userData[socket.id] = userStruct; //create new blank user struct
-	
-	console.log('User '+socket.id+' has connected'); //log new socket.id
-
 	socket.emit('userReg',userData); //update all sockets
 	socket.emit('userGetChatHistory',messages);
 	
-	io.emit('userSpreadMessage','[SERVER]:Socket '+userData[socket.id].nick+' connected');
-
+	sendMsg('Socket '+userData[socket.id].nick+' connected',true);
+	
 	socket.on('disconnect', function() {
-		io.emit('userSpreadMessage','[SERVER]:Socket '+userData[socket.id].nick+' disconnected');
+		sendMsg('Socket '+userData[socket.id].nick+' disconnected',true);
 
 		delete userData[socket.id];
 		console.log('User '+socket.id+' has disconnected'); //command log
+		
 		socket.emit('userDel',socket.id); //tell all sockets that this one is dead
 		socket.emit('userReg',userData); //update all sockets
 	});
@@ -63,15 +60,20 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message
+		sendMsg(msg,false);
+	});
+	
+	function sendMsg(msg,server) {
 		if(msg.match(/nick/i)) {
 			msg = msg.slice(6);
 			console.log('someone set their nick to '+msg);
 			userData[socket.id].nick = msg;
 			return;
 		}
-		console.log(userData[socket.id].nick+': '+msg);
-		io.emit('userSpreadMessage','['+userData[socket.id].nick+']:'+msg); //lets spread it
+		(server === true) ? msg = '[SERVER]:'+msg : msg = '['+userData[socket.id].nick+']:'+msg;
+		io.emit('userSpreadMessage',msg); //lets spread it
 		messages[messageCount] = msg;
 		messageCount++;
-	});
+		console.log(msg);
+	}
 });
