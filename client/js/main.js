@@ -22,15 +22,15 @@ function mainGame() {
 	
 	display.clearRect(0,0,canvasWidth,canvasHeight);
 	//display.fillRect(0,0,canvasWidth,canvasHeight);
-	
-	if(timer > 20) {
-		socket.emit('userUpdate',userData[id]); //send them our new coordinates
-		timer = 0;
-	}
 
 	for(let index in userData) {
 		userData[index].obj.update(userData[index].toIssue);
 		display.fillText(userData[index].nick,userData[index].obj.sprite.bb.x,userData[index].obj.sprite.bb.y-48);
+	}
+	
+	if(timer > 280) {
+		socket.emit('userUpdate',userData[id]); //send them our new coordinates
+		timer = 0;
 	}
 	
 	userData[id].toIssue = 8;

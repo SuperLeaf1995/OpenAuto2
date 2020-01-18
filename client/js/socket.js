@@ -2,6 +2,7 @@ var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
 //var socket = io('http://localhost:5000/');
 
 var userData = {};
+var carData = {};
 var id;
 
 socket.on('connect',function() {
@@ -11,11 +12,15 @@ socket.on('connect',function() {
 	display.fillStyle = 'black';
 });
 
+socket.on('userGetCarData',function(car) {
+	carData = car;
+});
+
 socket.on('userReg',function(user) {
 	userData = user; //the stuff  from user is now in our local thing
 	for(let index in userData) {
 		delete userData[index].obj;
-		userData[index].obj = new Car(userData[index].x,userData[index].y,1,userData[index].skin,display,userData[index].rot);
+		userData[index].obj = new Car(userData[index].x,userData[index].y,userData[index].z,userData[index].carType,display,userData[index].rot);
 	}
 	requestAnimationFrame(mainGame);
 });

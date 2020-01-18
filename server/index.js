@@ -14,6 +14,8 @@ var userData = {};
 var messages = {};
 var messageCount = 0;
 
+var carData = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/cardata.json')));
+
 app.get(path.normalize(__dirname+'/../client/'),function(req, res) {
 	console.log('Sending requested index.html file via: '+req.method);
 	res.sendFile(path.normalize(__dirname+'/../client/index'));
@@ -24,20 +26,20 @@ http.listen(port, function() {
 });
 
 io.on('connection', function(socket) {
-	let userStruct = {
+	userData[socket.id] = {
 		online: true, //boolean of status
 		x: 0, //x coordinate
 		y: 0, //y coordinate
-		z: 0, //zoom
+		z: 1, //zoom
 		id: socket.id, //send socket id
 		rot: 0, //rotation is zero
-		skin: 'img/car/car1.png', //default sprite for player car
+		carType: 1,
 		toIssue: 8, //defaults to no key pressed
 		nick: Math.floor(Math.random()*100)
-	};
-	userData[socket.id] = userStruct; //create new blank user struct
-	socket.emit('userReg',userData); //update all sockets
+	}; //create new blank user struct
 	socket.emit('userGetChatHistory',messages);
+	socket.emit('userGetCarData',carData);
+	socket.emit('userReg',userData); //update all sockets
 	
 	sendMsg('User '+userData[socket.id].nick+' connected',true);
 	
