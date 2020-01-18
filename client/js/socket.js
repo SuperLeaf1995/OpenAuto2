@@ -33,7 +33,7 @@ socket.on('userGetChatHistory',function(messages) {
 		let c = document.getElementById('textland'); //where to put li
 		a.appendChild(b); //appends text to li
 		c.appendChild(a); //appends li to the chat div
-		c.scrollBy(0,50);
+		//c.scrollBy(0,50);
 	}
 });
 
@@ -42,11 +42,9 @@ socket.on('userSpreadMessage',function(msg) {
 	let a = document.createElement('li'); //the li element
 	let b = document.createTextNode(msg); //content in li
 	let c = document.getElementById('textland'); //where to put li
-	
 	a.appendChild(b); //appends text to li
 	c.appendChild(a); //appends li to the chat div
-	
-	c.scrollBy(0,50);
+	//c.scrollBy(0,50);
 });
 
 function sendMessage() {
@@ -55,8 +53,6 @@ function sendMessage() {
 	if(a.value === undefined || a.value === "") {
 		return;
 	}
-		
 	socket.emit('userSendMessage',a.value);
-
-	a.value === "";
+	a.value = "";
 }

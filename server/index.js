@@ -5,6 +5,7 @@ const app = require('./app.js');
 const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const path = require('path');
+const fs = require('fs');
 
 //the port number
 const port = process.env.PORT || 5000;
@@ -38,10 +39,10 @@ io.on('connection', function(socket) {
 	socket.emit('userReg',userData); //update all sockets
 	socket.emit('userGetChatHistory',messages);
 	
-	sendMsg('Socket '+userData[socket.id].nick+' connected',true);
+	sendMsg('User '+userData[socket.id].nick+' connected',true);
 	
 	socket.on('disconnect', function() {
-		sendMsg('Socket '+userData[socket.id].nick+' disconnected',true);
+		sendMsg('User '+userData[socket.id].nick+' disconnected',true);
 
 		delete userData[socket.id];
 		console.log('User '+socket.id+' has disconnected'); //command log
