@@ -16,13 +16,13 @@ socket.on('connect',function() {
 });
 
 //General data
-socket.on('userReceiveData',function({messages,car,local}) {
+socket.on('userReceiveData',function({mess,car,local}) {
 	var lang = window.navigator.userLanguage || window.navigator.language;
 	localeData = local[lang]; //set appropiate locale
-	for(let i in messages) {
+	for(let i in mess) {
 		//console.log(messages[i]);
 		let a = document.createElement('li'); //the li element
-		let b = document.createTextNode(messages[i]); //content in li
+		let b = document.createTextNode(mess[i]); //content in li
 		let c = document.getElementById('textland'); //where to put li
 		a.appendChild(b); //appends text to li
 		c.appendChild(a); //appends li to the chat div
