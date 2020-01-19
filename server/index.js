@@ -41,7 +41,7 @@ io.on('connection', function(socket) {
 		nick: Math.floor(Math.random()*100)
 	}; //create new blank user struct
 	//first, send the socket all needed data to start
-	socket.emit('userReceiveData',{mess: messages, car: carData, local: localeData});
+	socket.emit('userReceiveData',{mess: messages,car: carData,local: localeData});
 	socket.emit('userReceiveList',userData); //send socket our current player stuff
 	//emit to everyone the new socket
 	io.emit('userNew',userData[socket.id]); //send everyone the socket information

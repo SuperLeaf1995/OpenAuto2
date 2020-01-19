@@ -20,7 +20,7 @@ socket.on('userReceiveData',function({mess,car,local}) {
 	var lang = window.navigator.userLanguage || window.navigator.language;
 	localeData = local[lang]; //set appropiate locale
 	for(let i in mess) {
-		//console.log(messages[i]);
+		console.log(mess[i]);
 		let a = document.createElement('li'); //the li element
 		let b = document.createTextNode(mess[i]); //content in li
 		let c = document.getElementById('textland'); //where to put li
@@ -29,6 +29,11 @@ socket.on('userReceiveData',function({mess,car,local}) {
 		//c.scrollBy(0,50);
 	}
 	carData = car;
+	//set the locale of the HTML elements text in the page
+	let i = document.getElementById('chatbox');
+	i.placeholder = localeData.type;
+	i = document.getElementById('sendButton');
+	i.innerHTML = localeData.send;
 });
 //User stuff
 socket.on('userReceiveList',function(user) {

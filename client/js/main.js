@@ -1,7 +1,3 @@
-//chat messages
-let inputBox = document.getElementById('chatbox');
-inputBox.placeholder = "Type wisely";
-
 //--------------------------
 //Main Game
 //--------------------------

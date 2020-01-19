@@ -1,12 +1,14 @@
-{"es":{
+{
+"it":{
 	"car1": "pesok",
 	"car2": "strashno",
-	"send": "enviar",
-	"server": "servidor",
-	"host": "anfitrion",
-	"user": "usuario",
-	"disconnected": "desconectado",
-	"connected": "connectado"
+	"send": "invia",
+	"server": "server",
+	"host": "ospite",
+	"user": "l'utente",
+	"disconnected": "si è disconnesso",
+	"connected": "si è connesso",
+	"type": "type"
 },
 "en":{
 	"car1": "pesok",
@@ -15,8 +17,20 @@
 	"server": "server",
 	"host": "host",
 	"user": "user",
-	"disconnected": "disconnected",
-	"connected": "connected"
+	"disconnected": "has disconnected",
+	"connected": "has connected",
+	"type": "type"
+},
+"es":{
+	"car1": "pesok",
+	"car2": "strashno",
+	"send": "enviar",
+	"server": "servidor",
+	"host": "anfitrion",
+	"user": "usuario",
+	"disconnected": "se ha desconectado",
+	"connected": "se ha connectado",
+	"type": "escriba"
 },
 "ru":{
 	"car1": "Песок",
@@ -25,6 +39,7 @@
 	"server": "сервер",
 	"host": "хозяин",
 	"user": "пользователь",
-	"disconnected": "отключить",
-	"connected": "подключения"
+	"disconnected": "отключился",
+	"connected": "подключил",
+	"type": "введите"
 }}
