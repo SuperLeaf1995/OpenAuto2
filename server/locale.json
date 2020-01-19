@@ -1,4 +1,26 @@
 {
+"ar":{
+	"car1": "پيسوك",
+	"car2": "ستراسهنو",
+	"send": "إرسال",
+	"server": "الخادم",
+	"host": "مضيف",
+	"user": "المستعمل",
+	"disconnected": "تم قطع الاتصال",
+	"connected": "لديه اتصال",
+	"type": "اطبع شيئا"
+},
+"be":{
+	"car1": "пясок",
+	"car2": "страшна",
+	"send": "адправіць",
+	"server": "сервер",
+	"host": "гаспадар",
+	"user": "карыстальніка",
+	"disconnected": "адключыўся",
+	"connected": "злучыў",
+	"type": "набярыце што-небудзь"
+},
 "it":{
 	"car1": "pesok",
 	"car2": "strashno",
@@ -19,7 +41,7 @@
 	"user": "user",
 	"disconnected": "has disconnected",
 	"connected": "has connected",
-	"type": "type"
+	"type": "type something"
 },
 "es":{
 	"car1": "pesok",
@@ -32,8 +54,30 @@
 	"connected": "se ha connectado",
 	"type": "escriba"
 },
+"pl":{
+	"car1": "piasek",
+	"car2": "straszne",
+	"send": "wysłać",
+	"server": "serwer",
+	"host": "gospodarz",
+	"user": "użytkownik",
+	"disconnected": "został rozłączony",
+	"connected": "połączył się",
+	"type": "napisz coś"
+},
+"pt":{
+	"car1": "pesok",
+	"car2": "strashno",
+	"send": "mandar",
+	"server": "servidor",
+	"host": "hospedeiro",
+	"user": "do utilizador",
+	"disconnected": "desconectou",
+	"connected": "conectou",
+	"type": "digite algo"
+},
 "ru":{
-	"car1": "Песок",
+	"car1": "песок",
 	"car2": "страшно",
 	"send": "отправить",
 	"server": "сервер",

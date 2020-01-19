@@ -1,12 +1,10 @@
 [{
-	"name": "Pesok",
 	"skin": "img/car/car1.png",
 	"health": 100,
 	"movStep": 0.1,
 	"movMax": 12
 },
 {
-	"name": "Strashno",
 	"skin": "img/car/car2.png",
 	"health": 100,
 	"movStep": 0.1,
