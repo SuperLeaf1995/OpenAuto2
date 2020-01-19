@@ -36,32 +36,28 @@ io.on('connection', function(socket) {
 		id: socket.id, //send socket id
 		rot: 0, //rotation is zero
 		carType: 1,
+		vel: 0,
 		toIssue: 8, //defaults to no key pressed
 		nick: Math.floor(Math.random()*100)
 	}; //create new blank user struct
-	socket.emit('userReceiveChatHistory',messages);
-	socket.emit('userReceiveCarData',carData);
-	socket.emit('userReceiveLocale',localeData);
-	socket.emit('userReg',userData); //update all sockets
-	
+	//first, send the socket all needed data to start
+	socket.emit('userReceiveData',{mess: messages, car: carData, local: localeData});
+	socket.emit('userReceiveList',userData); //send socket our current player stuff
+	//emit to everyone the new socket
+	io.emit('userNew',userData[socket.id]); //send everyone the socket information
 	sendMessage(localeData[serverSettings.language].user+' '+userData[socket.id].nick+' '+localeData[serverSettings.language].connected,true);
-	
 	socket.on('disconnect', function() {
 		sendMessage(localeData[serverSettings.language].user+' '+userData[socket.id].nick+' '+localeData[serverSettings.language].disconnected,true);
-
-		delete userData[socket.id];
-
-		io.emit('userDel',socket.id); //tell all sockets that this one is dead
-		//socket.emit('userReg',userData); //update all sockets
+		delete userData[socket.id]; //delete from main database
+		io.emit('userDelete',socket.id); //tell all sockets that this one is dead
 	});
 	
 	socket.on('userUpdate', function(data) {
-		userData[socket.id].obj = data.obj; //update our data
 		userData[socket.id].x = data.obj.sprite.bb.x;
 		userData[socket.id].y = data.obj.sprite.bb.y;
 		userData[socket.id].z = data.obj.sprite.zoom;
 		userData[socket.id].rot = data.obj.sprite.bb.angle;
-		io.emit('userReg',userData); //give them our stuff
+		io.emit('userUpdate',userData[socket.id]); //give them our stuff
 	});
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message
@@ -69,6 +65,10 @@ io.on('connection', function(socket) {
 	});
 	
 	function sendMessage(msg,server) {
+		//check if message is empty
+		if(msg === "") {
+			return; //abort	
+		}
 		if(msg.match(/nick/i)) {
 			msg = msg.slice(6);
 			console.log('someone set their nick to '+msg);

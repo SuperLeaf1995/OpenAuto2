@@ -7,7 +7,7 @@ inputBox.placeholder = "Type wisely";
 //--------------------------
 
 var toIssue;
-var timer = 80;
+var timer = 0;
 
 function mainGame() {
 	if (keymapper.w && !(keymapper.a) && !(keymapper.d)) { userData[id].toIssue = 0; } //advance, no turn
@@ -23,17 +23,16 @@ function mainGame() {
 	display.clearRect(0,0,canvasWidth,canvasHeight);
 	//display.fillRect(0,0,canvasWidth,canvasHeight);
 
-	for(let index in userData) {
-		userData[index].obj.update(userData[index].toIssue);
-		display.fillText(userData[index].nick,userData[index].obj.sprite.bb.x,userData[index].obj.sprite.bb.y-48);
-	}
-	
-	if(timer > 280) {
+	if(timer > 100) {
 		socket.emit('userUpdate',userData[id]); //send them our new coordinates
 		timer = 0;
 	}
-	
-	userData[id].toIssue = 8;
+
+	for(let index in userData) {
+		userData[index].obj.update(userData[index].toIssue);
+		display.fillText(userData[index].nick,userData[index].obj.sprite.bb.x-userData[id].obj.sprite.bb.x+(canvasWidth/2)-(userData[index].obj.sprite.bb.w/2),userData[index].obj.sprite.bb.y-userData[id].obj.sprite.bb.y+(canvasHeight/2)-(userData[index].obj.sprite.bb.h/2)-48);
+	}
+
 	timer++;
 	requestAnimationFrame(mainGame);
 }

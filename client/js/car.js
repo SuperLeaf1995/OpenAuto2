@@ -19,11 +19,9 @@ Car.prototype.update = function(issue) {
 		this.movVel += carData[this.carType].movStep;
 	}
 	
-	if(this.movVel > 0 && this.movVel < 0.1) {
-		this.movVel = 0
-	}
-	if(this.movVel < 0 && this.movVel > -0.1) {
-		this.movVel = 0
+	if((this.movVel > 0 && this.movVel < 0.1)
+	|| (this.movVel < 0 && this.movVel > -0.1)) {
+		this.movVel = 0;
 	}
 	
 	this.sprite.move(this.movVel);
