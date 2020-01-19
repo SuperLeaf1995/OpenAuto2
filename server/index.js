@@ -51,8 +51,8 @@ io.on('connection', function(socket) {
 
 		delete userData[socket.id];
 
-		socket.emit('userDel',socket.id); //tell all sockets that this one is dead
-		socket.emit('userReg',userData); //update all sockets
+		io.emit('userDel',socket.id); //tell all sockets that this one is dead
+		//socket.emit('userReg',userData); //update all sockets
 	});
 	
 	socket.on('userUpdate', function(data) {
@@ -61,7 +61,7 @@ io.on('connection', function(socket) {
 		userData[socket.id].y = data.obj.sprite.bb.y;
 		userData[socket.id].z = data.obj.sprite.zoom;
 		userData[socket.id].rot = data.obj.sprite.bb.angle;
-		socket.emit('userReg',userData); //give them our stuff
+		io.emit('userReg',userData); //give them our stuff
 	});
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message

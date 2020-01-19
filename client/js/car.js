@@ -1,11 +1,6 @@
-//limiters for cars
-const movMax = 10;
-const movStep = 0.1;
-
-function Car(x,y,z,ct,d,rot) {
-	this.img = new Image();
-	this.img.src = carData[ct].skin;
-	this.sprite = new Sprite(d,this.img,x,y,rot,z);
+function Car(x,y,z,ct,d,rot,f) {
+	this.carType = ct;
+	this.sprite = new Sprite(d,carData[ct].skin,x,y,rot,z,f);
 	this.movVel = 0;
 };
 

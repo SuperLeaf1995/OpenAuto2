@@ -31,20 +31,6 @@ function DegreesToRadians(deg) {
 }
 
 //--------------------------
-//Camera
-//--------------------------
-function Camera(x,y,z) {
-	this.x = x;
-	this.y = y;
-	this.zoom = z;
-};
-Camera.prototype.setNewCoords = function(x,y,z) {
-	this.x = x;
-	this.y = y;
-	this.zoom = z;
-};
-
-//--------------------------
 //Tile
 //--------------------------
 
@@ -126,39 +112,18 @@ BoundBox.prototype.update = function() {
 		}
 	}
 };
-BoundBox.prototype.drawBoundBox = function(d) {
-	d.beginPath();
-	
-	//draw the box of the boundary box
-	d.moveTo(this.p[0].x,this.p[0].y);
-	d.lineTo(this.p[1].x,this.p[1].y);
-	d.lineTo(this.p[2].x,this.p[2].y);
-	d.lineTo(this.p[3].x,this.p[3].y);
-	d.lineTo(this.p[0].x,this.p[0].y);
-	
-	//angle-ignoring lines that overmarks where the boundbox is
-	d.moveTo(this.x,0); //x
-	d.lineTo(this.x,this.y);
-	d.moveTo(0,this.y); //y
-	d.lineTo(this.x,this.y);
-	//lines marked from the other side
-	d.moveTo(this.x,canvasHeight);
-	d.lineTo(this.x,this.y);
-	d.moveTo(canvasWidth,this.y);
-	d.lineTo(this.x,this.y);
-	
-	display.stroke();
-};
 
 //--------------------------
 //Sprite
 //--------------------------
 
-function Sprite(d,image,x,y,rot,z) {
+function Sprite(d,src,x,y,rot,z,f) {
 	this.display = d;
-	this.img = image;
-	this.zoom = z
-	this.bb = new BoundBox(x,y,image.naturalWidth*this.zoom,image.naturalHeight*this.zoom,rot);
+	this.img = new Image();
+	this.img.src = src;
+	this.zoom = z;
+	this.focus = f;
+	this.bb = new BoundBox(x,y,this.img.naturalWidth*this.zoom,this.img.naturalHeight*this.zoom,rot);
 };
 Sprite.prototype.move = function(steps) {
 	// todo very do very | javidx convex polygons
@@ -166,11 +131,26 @@ Sprite.prototype.move = function(steps) {
 	this.bb.y += sin(this.bb.angle)*steps;
 };
 Sprite.prototype.update = function() {
-	this.bb.update();
-	this.bb.w = this.img.naturalWidth*this.zoom; this.bb.h = this.img.naturalHeight*this.zoom;
-	this.display.translate(this.bb.x,this.bb.y);
-	this.display.rotate(this.bb.angle);
-	this.display.drawImage(this.img,(-this.bb.w/2),(-this.bb.h/2),this.bb.w,this.bb.h);
-	this.display.rotate(-this.bb.angle);
-	this.display.translate(-this.bb.x,-this.bb.y);
+	if(this.bb.x-userData[id].obj.sprite.bb.x > canvasWidth
+	|| this.bb.y-userData[id].obj.sprite.bb.y > canvasHeight) {
+		//if its not in range, do not draw it
+	} else {
+		this.bb.update();//update the boundbox
+		this.bb.w = this.img.naturalWidth*this.zoom; this.bb.h = this.img.naturalHeight*this.zoom;
+	
+		if(this.focus) {
+			this.display.translate((canvasWidth/2)-(this.bb.w/2),(canvasHeight/2)-(this.bb.h/2));
+		} else {
+			this.display.translate(this.bb.x-userData[id].obj.sprite.bb.x+(canvasWidth/2)-(this.bb.w/2),this.bb.y-userData[id].obj.sprite.bb.y+(canvasHeight/2)-(this.bb.h/2));
+		}
+	
+		this.display.rotate(this.bb.angle); //rotate again
+		this.display.drawImage(this.img,(-this.bb.w/2),(-this.bb.h/2),this.bb.w,this.bb.h); //draws
+		this.display.rotate(-this.bb.angle); //set rotation to 0 (so everything dosent messes up)
+		if(this.focus) {
+			this.display.translate(-(canvasWidth/2)+(this.bb.w/2),-(canvasHeight/2)+(this.bb.h/2));
+		} else {
+			this.display.translate(-this.bb.x+userData[id].obj.sprite.bb.x-(canvasWidth/2)+(this.bb.w/2),-this.bb.y+userData[id].obj.sprite.bb.y-(canvasHeight/2)+(this.bb.h/2));
+		}
+	}
 };

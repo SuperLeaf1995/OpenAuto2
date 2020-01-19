@@ -21,8 +21,9 @@ socket.on('userReg',function(user) {
 	userData = user; //the stuff  from user is now in our local thing
 	for(let index in userData) {
 		delete userData[index].obj;
-		userData[index].obj = new Car(userData[index].x,userData[index].y,userData[index].z,userData[index].carType,display,userData[index].rot);
+		userData[index].obj = new Car(userData[index].x,userData[index].y,userData[index].z,userData[index].carType,display,userData[index].rot,false);
 	}
+	userData[id].obj.sprite.focus = true; //its the main player, set camera focus on him
 	requestAnimationFrame(mainGame);
 });
 
