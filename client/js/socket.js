@@ -1,5 +1,5 @@
-//var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
-var socket = io('http://localhost:5000/');
+var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
+//var socket = io('http://localhost:5000/');
 
 var userData = {};
 var carData = {};
