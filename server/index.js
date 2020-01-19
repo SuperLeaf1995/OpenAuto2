@@ -14,6 +14,8 @@ var userData = {};
 var messages = {};
 var messageCount = 0;
 
+var serverSettings = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/config.json')));
+var localeData = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/locale.json')));
 var carData = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/cardata.json')));
 
 app.get(path.normalize(__dirname+'/../client/'),function(req, res) {
@@ -37,18 +39,18 @@ io.on('connection', function(socket) {
 		toIssue: 8, //defaults to no key pressed
 		nick: Math.floor(Math.random()*100)
 	}; //create new blank user struct
-	socket.emit('userGetChatHistory',messages);
-	socket.emit('userGetCarData',carData);
+	socket.emit('userReceiveChatHistory',messages);
+	socket.emit('userReceiveCarData',carData);
+	socket.emit('userReceiveLocale',localeData);
 	socket.emit('userReg',userData); //update all sockets
 	
-	sendMsg('User '+userData[socket.id].nick+' connected',true);
+	sendMessage(localeData[serverSettings.language].user+' '+userData[socket.id].nick+' '+localeData[serverSettings.language].connected,true);
 	
 	socket.on('disconnect', function() {
-		sendMsg('User '+userData[socket.id].nick+' disconnected',true);
+		sendMessage(localeData[serverSettings.language].user+' '+userData[socket.id].nick+' '+localeData[serverSettings.language].disconnected,true);
 
 		delete userData[socket.id];
-		console.log('User '+socket.id+' has disconnected'); //command log
-		
+
 		socket.emit('userDel',socket.id); //tell all sockets that this one is dead
 		socket.emit('userReg',userData); //update all sockets
 	});
@@ -63,17 +65,17 @@ io.on('connection', function(socket) {
 	});
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message
-		sendMsg(msg,false);
+		sendMessage(msg,false);
 	});
 	
-	function sendMsg(msg,server) {
+	function sendMessage(msg,server) {
 		if(msg.match(/nick/i)) {
 			msg = msg.slice(6);
 			console.log('someone set their nick to '+msg);
 			userData[socket.id].nick = msg;
 			return;
 		}
-		(server === true) ? msg = '[SERVER]:'+msg : msg = '['+userData[socket.id].nick+']:'+msg;
+		(server === true) ? msg = '['+localeData[serverSettings.language].server+']:'+msg : msg = '['+userData[socket.id].nick+']:'+msg;
 		io.emit('userSpreadMessage',msg); //lets spread it
 		messages[messageCount] = msg;
 		messageCount++;
@@ -84,7 +86,7 @@ io.on('connection', function(socket) {
 process.once('SIGINT',function() {
 	console.log('Shutdown signal received');
 	console.log('Informing sockets of server closing');
-	io.emit('userSpreadMessage','[HOST]: Server shutdown');
+	io.emit('userSpreadMessage','['+localeData[serverSettings.language].host+']: Server shutdown');
 	console.log('Shutdowning the HTTP server');
 	http.close();
 });

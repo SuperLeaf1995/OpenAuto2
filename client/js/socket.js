@@ -1,8 +1,9 @@
-var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
-//var socket = io('http://localhost:5000/');
+//var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
+var socket = io('http://localhost:5000/');
 
 var userData = {};
 var carData = {};
+var localeData = {};
 var id;
 
 socket.on('connect',function() {
@@ -12,7 +13,7 @@ socket.on('connect',function() {
 	display.fillStyle = 'black';
 });
 
-socket.on('userGetCarData',function(car) {
+socket.on('userReceiveCarData',function(car) {
 	carData = car;
 });
 
@@ -30,7 +31,7 @@ socket.on('userDel',function(i) {
 	delete userData[i]; //delete specified user out of array shit
 });
 
-socket.on('userGetChatHistory',function(messages) {
+socket.on('userReceiveChatHistory',function(messages) {
 	for(let i in messages) {
 		console.log(messages[i]);
 		let a = document.createElement('li'); //the li element
@@ -50,6 +51,12 @@ socket.on('userSpreadMessage',function(msg) {
 	a.appendChild(b); //appends text to li
 	c.appendChild(a); //appends li to the chat div
 	//c.scrollBy(0,50);
+});
+
+socket.on('userReceiveLocale',function(locale) {
+	//get user language
+	var lang = window.navigator.userLanguage || window.navigator.language;
+	localeData = locale[lang]; //set appropiate locale
 });
 
 function sendMessage() {

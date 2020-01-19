@@ -1,0 +1,30 @@
+{"es":{
+	"car1": "pesok",
+	"car2": "strashno",
+	"send": "enviar",
+	"server": "servidor",
+	"host": "anfitrion",
+	"user": "usuario",
+	"disconnected": "desconectado",
+	"connected": "connectado"
+},
+"en":{
+	"car1": "pesok",
+	"car2": "strashno",
+	"send": "send",
+	"server": "server",
+	"host": "host",
+	"user": "user",
+	"disconnected": "disconnected",
+	"connected": "connected"
+},
+"ru":{
+	"car1": "Песок",
+	"car2": "страшно",
+	"send": "отправить",
+	"server": "сервер",
+	"host": "хозяин",
+	"user": "пользователь",
+	"disconnected": "отключить",
+	"connected": "подключения"
+}}
