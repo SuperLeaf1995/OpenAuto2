@@ -1,12 +1,18 @@
 [{
-	"skin": "img/car/car1.png",
-	"health": 100,
+	"skin": "img/car/car00-00.png",
+	"health": 110,
 	"movStep": 0.1,
-	"movMax": 12
+	"movMax": 8
 },
 {
-	"skin": "img/car/car2.png",
-	"health": 100,
+	"skin": "img/car/car01-00.png",
+	"health": 140,
 	"movStep": 0.1,
-	"movMax": 12
+	"movMax": 10
+},
+{
+	"skin": "img/car/car02-00.png",
+	"health": 120,
+	"movStep": 0.1,
+	"movMax": 11
 }]

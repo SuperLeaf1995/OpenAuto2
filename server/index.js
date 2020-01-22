@@ -19,13 +19,17 @@ var localeData = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server
 var carData = JSON.parse(fs.readFileSync(path.normalize(__dirname+'/../server/cardata.json')));
 
 app.get(path.normalize(__dirname+'/../client/'),function(req, res) {
-	console.log('Sending requested index.html file via: '+req.method);
 	res.sendFile(path.normalize(__dirname+'/../client/index'));
 });
 
 http.listen(port, function() {
 	console.log('listening on server:'+port);
 });
+
+/*
+		"img/car/car00-01.png",
+		"img/car/car00-02.png"
+*/
 
 io.on('connection', function(socket) {
 	userData[socket.id] = {
@@ -35,11 +39,15 @@ io.on('connection', function(socket) {
 		z: 1, //zoom
 		id: socket.id, //send socket id
 		rot: 0, //rotation is zero
-		carType: 1,
+		carType: 0, //will later changeTM
 		vel: 0,
 		toIssue: 8, //defaults to no key pressed
 		nick: Math.floor(Math.random()*100)
 	}; //create new blank user struct
+	//randomily select the car type
+	let g = Math.floor(Math.random()*(carData.lenght*2));
+	(g > carData.lenght) ? g = 0 : g = g;
+	userData[socket.id].ct = g;
 	//first, send the socket all needed data to start
 	socket.emit('userReceiveData',{mess: messages,car: carData,local: localeData});
 	socket.emit('userReceiveList',userData); //send socket our current player stuff

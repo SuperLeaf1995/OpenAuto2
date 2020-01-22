@@ -12,7 +12,6 @@ socket.on('connect',function() {
 	console.log('Connection established');
 	console.log('Assigned socket id: '+socket.io.engine.id);
 	id = socket.io.engine.id;
-	display.fillStyle = 'black';
 });
 
 //General data
@@ -20,7 +19,6 @@ socket.on('userReceiveData',function({mess,car,local}) {
 	var lang = window.navigator.userLanguage || window.navigator.language;
 	localeData = local[lang]; //set appropiate locale
 	for(let i in mess) {
-		console.log(mess[i]);
 		let a = document.createElement('li'); //the li element
 		let b = document.createTextNode(mess[i]); //content in li
 		let c = document.getElementById('textland'); //where to put li
@@ -65,7 +63,6 @@ socket.on('userDelete',function(i) {
 
 //Chat socket stuff
 socket.on('userSpreadMessage',function(msg) {
-	console.log(msg);
 	let a = document.createElement('li'); //the li element
 	let b = document.createTextNode(msg); //content in li
 	let c = document.getElementById('textland'); //where to put li

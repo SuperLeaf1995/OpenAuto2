@@ -1,7 +1,8 @@
 {
 "ar":{
-	"car1": "پيسوك",
-	"car2": "ستراسهنو",
+	"car1": "pesok",
+	"car2": "strashno",
+	"car3": "kilorav",
 	"send": "إرسال",
 	"server": "الخادم",
 	"host": "مضيف",
@@ -11,8 +12,9 @@
 	"type": "اطبع شيئا"
 },
 "be":{
-	"car1": "пясок",
-	"car2": "страшна",
+	"car1": "pesok",
+	"car2": "strashno",
+	"car3": "kilorav",
 	"send": "адправіць",
 	"server": "сервер",
 	"host": "гаспадар",
@@ -24,6 +26,7 @@
 "it":{
 	"car1": "pesok",
 	"car2": "strashno",
+	"car3": "kilorav",
 	"send": "invia",
 	"server": "server",
 	"host": "ospite",
@@ -35,6 +38,7 @@
 "en":{
 	"car1": "pesok",
 	"car2": "strashno",
+	"car3": "kilorav",
 	"send": "send",
 	"server": "server",
 	"host": "host",
@@ -46,6 +50,7 @@
 "es":{
 	"car1": "pesok",
 	"car2": "strashno",
+	"car3": "kilorav",
 	"send": "enviar",
 	"server": "servidor",
 	"host": "anfitrion",
@@ -57,6 +62,7 @@
 "pl":{
 	"car1": "piasek",
 	"car2": "straszne",
+	"car3": "CAR3",
 	"send": "wysłać",
 	"server": "serwer",
 	"host": "gospodarz",
@@ -68,6 +74,7 @@
 "pt":{
 	"car1": "pesok",
 	"car2": "strashno",
+	"car3": "kilorav",
 	"send": "mandar",
 	"server": "servidor",
 	"host": "hospedeiro",
@@ -77,8 +84,9 @@
 	"type": "digite algo"
 },
 "ru":{
-	"car1": "песок",
-	"car2": "страшно",
+	"car1": "pesok",
+	"car2": "strashno",
+	"car3": "kilorav",
 	"send": "отправить",
 	"server": "сервер",
 	"host": "хозяин",

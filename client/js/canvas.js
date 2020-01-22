@@ -1,34 +1,27 @@
 //define the constants for the canvas and the 2d thing
 const canvas = document.getElementById("canvas");
 const display = canvas.getContext("2d");
+//define the canvas size variables
+var canvasHeight = canvas.height;
+var canvasWidth = canvas.width;
 //define the real widht and height of the canvas
 canvas.width = 800;
 canvas.height = 400;
-//define the canvas size variables
-var canvasHeight;
-var canvasWidth;
-
-//used for cube and maptile calculations
-const cube_radius = 2;
-let projection_center_x = (canvasWidth/2);
-let projection_center_y = (canvasHeight/2);
-let field_of_view = canvasWidth * 0.8;
-const cube_lines = [[0,1],[1,3],[3,2],[2,0],[2,6],[3,7],[0,4],[1,5],[6,7],[6,4],[7,5],[4,5]];
-const cube_vertices = [[-1,-1,-1],[1,-1,-1],[-1,1,-1],[1,1,-1],[-1,-1,1],[1,-1,1],[-1,1,1],[1,1,1]];
-var tileSize = 32; //size of tile
 
 //shortnames for math stuff
 var cos = Math.cos;
 var sin = Math.sin;
 
-//--------------------------
-//Subfunctions
-//--------------------------
+//used for cubes
 
-//radian degrees
-function DegreesToRadians(deg) {
-	return deg*Math.PI/180;
-}
+console.log(canvasWidth+' '+canvasHeight);
+
+var projectionCenterX = (canvasWidth/2);
+var projectionCenterY = (canvasHeight/2);
+var viewField = canvasWidth*0.8;
+const cubeLines = [[0,1],[1,3],[3,2],[2,0],[2,6],[3,7],[0,4],[1,5],[6,7],[6,4],[7,5],[4,5]];
+const cubeVertices = [[-1,-1,-1],[1,-1,-1],[-1,1,-1],[1,1,-1],[-1,-1,1],[1,-1,1],[-1,1,1],[1,1,1]];
+var tileSize = 48;
 
 //--------------------------
 //Tile
@@ -38,9 +31,9 @@ function MapTile(radius) {
 	this.radius = radius;
 };
 MapTile.prototype.project = function(x,y,z) {
-	const sizeProjection = field_of_view / (field_of_view+z);
-	const xProject = (x*sizeProjection)+projection_center_x;
-	const yProject = (y*sizeProjection)+projection_center_y;
+	const sizeProjection = viewField/(viewField+z);
+	const xProject = (x*sizeProjection)+projectionCenterX;
+	const yProject = (y*sizeProjection)+projectionCenterY;
 	return {
 		size: sizeProjection,
 		x: xProject,
@@ -55,35 +48,35 @@ MapTile.prototype.setNewCoords = function(x,y,z) {
 MapTile.prototype.update = function(cameraX,cameraY,cameraZ) {
 	let cubeX = ((-cameraX*5.5)+(canvasWidth/2))-(cameraZ*8)-this.x;
 	let cubeY = ((-cameraY*5.5)+(canvasHeight/2))-(cameraZ*8)-this.y;
-	let cubeZ = tileSize*32;
+	let cubeZ = cameraZ;
 	this.x = cubeX;
 	this.y = cubeY;
 	this.z = cubeZ;
-	projection_center_x = (canvasWidth/2)-(tileSize/2);
-	projection_center_y = (canvasHeight/2)-(tileSize/2);
+	projectionCenterX = (canvasWidth/2)-(tileSize/2);
+	projectionCenterY = (canvasHeight/2)-(tileSize/2);
 };
 MapTile.prototype.draw = function(d) {
-	if(this.z < (-field_of_view + this.radius)) {
+	if(this.z < (-viewField + this.radius)) {
 		return;
 	}
-	for(let i = 0; i < cube_lines.length; i++) {
+	for(let i = 0; i < cubeLines.length; i++) {
 		const v1 = { //Draw all the cube lines
-			x: this.x + (this.radius * cube_vertices[cube_lines[i][0]][0]),
-			y: this.y + (this.radius * cube_vertices[cube_lines[i][0]][1]),
-			z: this.z + (this.radius * cube_vertices[cube_lines[i][0]][2])
+			x: this.x+(this.radius*cubeVertices[cubeLines[i][0]][0]),
+			y: this.y+(this.radius*cubeVertices[cubeLines[i][0]][1]),
+			z: this.z+(this.radius*cubeVertices[cubeLines[i][0]][2])
 		};
 		const v2 = {
-			x: this.x + (this.radius * cube_vertices[cube_lines[i][1]][0]),
-			y: this.y + (this.radius * cube_vertices[cube_lines[i][1]][1]),
-			z: this.z + (this.radius * cube_vertices[cube_lines[i][1]][2])
+			x: this.x+(this.radius*cubeVertices[cubeLines[i][1]][0]),
+			y: this.y+(this.radius*cubeVertices[cubeLines[i][1]][1]),
+			z: this.z+(this.radius*cubeVertices[cubeLines[i][1]][2])
 		};
-		const v1Project = this.project(v1.x, v1.y, v1.z);
-		const v2Project = this.project(v2.x, v2.y, v2.z);
+		const v1Project = this.project(v1.x,v1.y,v1.z);
+		const v2Project = this.project(v2.x,v2.y,v2.z);
 		d.beginPath();
 		d.moveTo(v1Project.x, v1Project.y);
 		d.lineTo(v2Project.x, v2Project.y);
 		d.stroke();
-	}
+	};
 };
 
 //--------------------------
