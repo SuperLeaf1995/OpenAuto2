@@ -15,11 +15,13 @@ var canvasWidth = canvas.width;
 display.mozImageSmoothingEnabled = false; display.webkitImageSmoothingEnabled = false;
 display.msImageSmoothingEnabled = false; display.imageSmoothingEnabled = false;
 
-var enterCar = false;
+var enterCar = false; //is player entering a car (transforming)
+var imShooting = false; //is player shooting
 
 var userData = {}; //<- player data
 var carData = {}; //<- car sprites, data, stats, etc
 var nodeData = {}; //<- npc paths
+var bulletData = {}; //<- bullet stuff
 var npc = {}; //<- npcs, nasty motherfuckers
 var pedData = {}; //<- ped sprites, data, stats, etc
 var localeData = {}; //<- language and names and stuff
@@ -48,9 +50,21 @@ const cubeVertices = [
 var playerCameraX = (canvasWidth/2); //center X of camera
 var playerCameraY = (canvasHeight/2); //center Y of camera
 var viewField = canvasWidth*0.8; //field of view of the player camera
-var tileSize = 48; //normal tilsize (for x, y and z)
+var tileSize = 48; //normal tilesize (for x, y and z)
 
 var timer = 0;
+
+var bulletSprt = new Image();
+bulletSprt.src = "img/etc/bullet_generic.png";
+
+var introImage = new Image(); //OA2 default intro image. feel free to put your own images
+introImage.src = "img/ui/intro.png";
+
+display.drawImage(introImage,canvasWidth,canvasHeight,0,0);
+
+bulletSprt.onload = function() {
+	display.fillText("Loaded bullet sprites",0,0);
+};
 
 //===========================================================
 // SUBFUNCTIONS
@@ -255,6 +269,10 @@ socket.on('userSpreadMessage',function(msg) {
 	//c.scrollBy(0,50);
 });
 
+socket.on('newBullet',function(data) {
+	bulletData[Math.random()*100] = new Bullet(data.x,data.y,16,16,data.r,bulletSprt,display,data.sid);
+});
+
 function MapTile(radius) {
 	this.radius = radius;
 };
@@ -322,18 +340,67 @@ MapTile.prototype.draw = function(d) {
 	const v2Project = this.project(v1.x,v1.y,v1.z);
 };
 
+function Bullet(x,y,w,h,rot,img,d,s) {
+	this.p = [{x:-(w/2),y:-(h/2)},{x:w/2,y:-(h/2)},{x:w/2,y:h/2},{x:-(w/2),y:h/2}];
+	this.o = [{x:-(w/2),y:-(h/2)},{x:w/2,y:-(h/2)},{x:w/2,y:h/2},{x:-(w/2),y:h/2}];
+	this.angle = rot;
+	this.zoom = 1;
+	this.sid = s; //shooter
+	this.x = x; this.y = y; this.w = w; this.h = h;
+	this.img = img;
+	this.display = d;
+}
+
+Bullet.prototype.update = function(steps) {
+	//update
+	this.x += Math.cos(this.angle)*steps;
+	this.y += Math.sin(this.angle)*steps;
+	//update
+	var cAngle = Math.cos(this.angle);
+	var sAngle = Math.sin(this.angle);
+	for (var i = 0; i < this.o.length; i++) {
+		this.p[i] = {
+			x:(this.o[i].x*cAngle)-(this.o[i].y*sAngle)+this.x,
+			y:(this.o[i].x*sAngle)+(this.o[i].y*cAngle)+this.y
+		}
+	}
+	this.w = this.img.naturalWidth*this.zoom; this.h = this.img.naturalHeight*this.zoom;
+	this.display.translate(this.x-userData[id].x+(canvasWidth/2)-(this.w/2),this.y-userData[id].y+(canvasHeight/2)-(this.h/2));
+	this.display.rotate(this.angle); //rotate again
+	this.display.drawImage(this.img,Math.floor(-this.w/2),Math.floor(-this.h/2),Math.floor(this.w),Math.floor(this.h)); //draws
+	this.display.rotate(-this.angle); //set rotation to 0 (so everything dosent messes up)
+	this.display.translate(-this.x+userData[id].x-(canvasWidth/2)+(this.w/2),-this.y+userData[id].y-(canvasHeight/2)+(this.h/2));
+};
+
 function BoundBox(x,y,w,h,rot) {	
 	this.p = [{x:-(w/2),y:-(h/2)},{x:w/2,y:-(h/2)},{x:w/2,y:h/2},{x:-(w/2),y:h/2}];
 	this.o = [{x:-(w/2),y:-(h/2)},{x:w/2,y:-(h/2)},{x:w/2,y:h/2},{x:-(w/2),y:h/2}];
 	this.angle = rot;
 	this.x = x; this.y = y; this.w = w; this.h = h;
-	
-	this.oldX = this.x;
-	this.oldY = this.y;
-	this.oldAngle = this.angle;
 };
-BoundBox.prototype.collide = function(bb) {
-	// body...
+BoundBox.prototype.collideWithNode = function(x,y) {
+	//dosent collides with boundbox, collides with sprite!!
+	if(this.x == x && this.y == y) {
+		return true; //exactly on the "zero point"
+	}
+	//collides with boundbox?
+	if(this.x-this.w > x && this.x+this.w < x
+	&& this.y-this.h > y && this.y+this.h < y) {
+		return true;
+	}
+	if(this.x+this.w > x && this.x-this.w < x
+	&& this.y+this.h > y && this.y-this.h < y) {
+		return true;
+	}
+	if(this.x+this.w > x && this.x+this.w < x
+	&& this.y+this.h > y && this.y+this.h < y) {
+		return true;
+	}
+	if(this.x-this.w > x && this.x-this.w < x
+	&& this.y-this.h > y && this.y-this.h < y) {
+		return true;
+	}
+	return false;
 };
 BoundBox.prototype.update = function() {
 	var cAngle = Math.cos(this.angle);
@@ -472,7 +539,25 @@ function mainGame() {
 	else if ((keymapper.a) && (keymapper.s) && !(keymapper.w)) { userData[id].toIssue = 7; } //^
 	else { userData[id].toIssue = 8; } //no key
 	
+	if(keymapper.z) { imShooting = true; }
+	else { imShooting = false; }
+	
 	display.clearRect(0,0,canvasWidth,canvasHeight);
+	
+	if(imShooting) {
+		//please dont hack!
+		if(!userData[id].onFoot) {
+			socket.emit('bulletShoot',{	x: userData[id].obj.sprite.bb.x,
+										y: userData[id].obj.sprite.bb.y,
+										r: userData[id].obj.sprite.bb.angle,
+										sid: id});
+		} else {
+			socket.emit('bulletShoot',{	x: userData[id].ped.sprite.bb.x,
+										y: userData[id].ped.sprite.bb.y,
+										r: userData[id].ped.sprite.bb.angle,
+										sid: id});
+		}
+	}
 	
 	for(let i in userData) {
 		if(!userData[i].onFoot) { //if the user is in a car, use the coordinates of the car instead of the ped
@@ -489,6 +574,18 @@ function mainGame() {
 			userData[i].h = userData[i].ped.sprite.bb.h;
 			userData[i].rot = userData[i].ped.sprite.bb.angle;
 			userData[i].vel = userData[i].ped.movVel;
+			//and check collisions
+			for(let i2 in bulletData) {
+				let f = userData[i].ped.sprite.bb.collideWithNode(bulletData[i2].x,bulletData[i2].y);
+				if(f) {
+					//die if touched by bullet
+					userData[i].ped.health = 0;
+					console.log(bulletData[i2]);
+					socket.emit('userDead',{ id: i, //victim
+											 sid: bulletData[i2].sid //killer
+											 });
+				}
+			}
 		}
 	}
 	
@@ -525,6 +622,11 @@ function mainGame() {
 		} else {
 			npcData[index].obj.update(npcData[index].toIssue);
 		}
+	}
+	
+	//update all bullets
+	for(let index in bulletData) {
+		bulletData[index].update(10);
 	}
 	
 	display.beginPath();

@@ -10,8 +10,9 @@ const fs = require('fs');
 //the port number
 const port = process.env.PORT || 5000;
 
-var userData = {};
-var npcData = {};
+var userData = {}; //user stuff, thats all
+var npcData = {}; //npc stuff, identical to user data but no user controls em
+var bulletData = {}; //everyone gangsta till the orange dot shows
 var messages = {};
 var messageCount = 0;
 
@@ -32,7 +33,8 @@ for(let i = 0; i < serverSettings.maxNpc; i++) {
 		isCar: false,
 		carType: 0,
 		pedType: 0,
-		toIssue: 4
+		toIssue: 4,
+		weapon: 1
 	}
 }
 
@@ -65,7 +67,9 @@ io.on('connection', function(socket) {
 		money: 5000,
 		toIssue: 8, //defaults to no key pressed
 		nick: Math.floor(Math.random()*100),
-		onFoot: true //no one can spawn with a car, muahahaha!
+		onFoot: true, //no one can spawn with a car, muahahaha!
+		weapon: 1,
+		killCount: 0
 	}; //create new blank user struct
 	//first, send the socket all needed data to start
 	for(let i in mapData) {
@@ -94,6 +98,27 @@ io.on('connection', function(socket) {
 	
 	socket.on('userSendMessage', function(msg) { //they givin us they message
 		sendMessage(msg,false);
+	});
+	
+	socket.on('userDead', function(data) {
+		console.log(data);
+		sendMessage("User "+userData[data.id].nick+" killed by "+userData[data.sid].nick,true);
+		userData[data.sid].killCount++; //give them a killcount
+		if(userData[data.sid].killCount > 2) {
+			sendMessage("User "+userData[data.sid].nick+" is on a "+userData[data.sid].killCount+" killstreak!",true);
+		}
+		//respawn at lobby!!!
+		userData[data.id].x = 0;
+		userData[data.id].y = 0;
+		userData[data.id].z = 1;
+		userData[data.id].r = 0;
+		userData[data.id].vel = 0;
+		userData[data.id].money -= 120;
+		userData[data.id].health = 100;
+	})
+	
+	socket.on('bulletShoot',function(data) {
+		io.emit('newBullet',data);
 	});
 	
 	function sendMessage(msg,server) {

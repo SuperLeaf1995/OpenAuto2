@@ -3,5 +3,5 @@
 	"description": "server",
 	"language": "en",
 	"prefix": "/",
-	"maxNpc": 50
+	"maxNpc": 1
 }
