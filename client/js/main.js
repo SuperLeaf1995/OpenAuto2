@@ -2,8 +2,8 @@
 // VARIABLES, LOCALES AND CONSTANTS
 //===========================================================
 
-//var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
-var socket = io('http://localhost:5000/');
+var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
+//var socket = io('http://localhost:5000/');
 
 const canvas = document.getElementById("canvas"); //assign the element of canvas
 const display = canvas.getContext("2d",{alpha: true}); //set as a 2D canvas
