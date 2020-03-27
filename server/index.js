@@ -80,6 +80,7 @@ io.on('connection', function(socket) {
 		}
 	}
 	socket.emit('userReceiveData',{mess: messages,car: carData,local: localeData,ped: pedData,npc: npcData,node: mapNodeData});
+	console.log(localeData);
 	socket.emit('userReceiveList',userData); //send socket our current player stuff
 	//emit to everyone the new socket
 	io.emit('userNew',userData[socket.id]); //send everyone the socket information
@@ -118,6 +119,8 @@ io.on('connection', function(socket) {
 	})
 	
 	socket.on('bulletShoot',function(data) {
+		data.x += Math.cos(data.r)*40;
+		data.y += Math.sin(data.r)*40;
 		io.emit('newBullet',data);
 	});
 	

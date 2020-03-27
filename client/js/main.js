@@ -2,8 +2,8 @@
 // VARIABLES, LOCALES AND CONSTANTS
 //===========================================================
 
-var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
-//var socket = io('http://localhost:5000/');
+//var socket = io('https://openauto2.herokuapp.com/'); //create a new socket!
+var socket = io('http://localhost:5000/');
 
 const canvas = document.getElementById("canvas"); //assign the element of canvas
 const display = canvas.getContext("2d",{alpha: true}); //set as a 2D canvas
@@ -56,11 +56,6 @@ var timer = 0;
 
 var bulletSprt = new Image();
 bulletSprt.src = "img/etc/bullet_generic.png";
-
-var introImage = new Image(); //OA2 default intro image. feel free to put your own images
-introImage.src = "img/ui/intro.png";
-
-display.drawImage(introImage,canvasWidth,canvasHeight,0,0);
 
 bulletSprt.onload = function() {
 	display.fillText("Loaded bullet sprites",0,0);
@@ -182,6 +177,7 @@ socket.on('userReceiveData',function({mess,car,local,ped,npc,node}) {
 	//set the locale of the HTML elements text in the page
 	var lang = window.navigator.userLanguage || window.navigator.language;
 	localeData = local[lang]; //set appropiate locale
+	console.log(lang);
 	let i = document.getElementById('chatbox');
 	i.placeholder = localeData.type;
 	i = document.getElementById('sendButton');
@@ -384,7 +380,7 @@ BoundBox.prototype.collideWithNode = function(x,y) {
 		return true; //exactly on the "zero point"
 	}
 	//collides with boundbox?
-	if(this.x-this.w > x && this.x+this.w < x
+	/*if(this.x-this.w > x && this.x+this.w < x
 	&& this.y-this.h > y && this.y+this.h < y) {
 		return true;
 	}
@@ -399,7 +395,7 @@ BoundBox.prototype.collideWithNode = function(x,y) {
 	if(this.x-this.w > x && this.x-this.w < x
 	&& this.y-this.h > y && this.y-this.h < y) {
 		return true;
-	}
+	}*/
 	return false;
 };
 BoundBox.prototype.update = function() {
@@ -411,7 +407,7 @@ BoundBox.prototype.update = function() {
 			y:(this.o[i].x*sAngle)+(this.o[i].y*cAngle)+this.y
 		}
 	}
-	/*display.beginPath();
+	display.beginPath();
 	display.moveTo(this.p[0].x-userData[id].x+(canvasWidth/2)-(this.w/2),this.p[0].y-userData[id].y+(canvasHeight/2)-(this.h/2));
 	display.lineTo(this.p[1].x-userData[id].x+(canvasWidth/2)-(this.w/2),this.p[1].y-userData[id].y+(canvasHeight/2)-(this.h/2));
 	display.lineTo(this.p[2].x-userData[id].x+(canvasWidth/2)-(this.w/2),this.p[2].y-userData[id].y+(canvasHeight/2)-(this.h/2));
@@ -421,7 +417,7 @@ BoundBox.prototype.update = function() {
 	display.lineTo(this.x-userData[id].x+(canvasWidth/2)-(this.w/2),this.y-userData[id].y+(canvasHeight/2)-(this.h/2));
 	display.moveTo(0,this.y-userData[id].y+(canvasHeight/2)-(this.h/2));
 	display.lineTo(this.x-userData[id].x+(canvasWidth/2)-(this.w/2),this.y-userData[id].y+(canvasHeight/2)-(this.h/2));
-	display.stroke();*/
+	display.stroke();
 };
 
 function Sprite(d,src,x,y,rot,z,f) {
@@ -547,13 +543,13 @@ function mainGame() {
 	if(imShooting) {
 		//please dont hack!
 		if(!userData[id].onFoot) {
-			socket.emit('bulletShoot',{	x: userData[id].obj.sprite.bb.x,
-										y: userData[id].obj.sprite.bb.y,
+			socket.emit('bulletShoot',{	x: (userData[id].obj.sprite.bb.x),
+										y: (userData[id].obj.sprite.bb.y),
 										r: userData[id].obj.sprite.bb.angle,
 										sid: id});
 		} else {
-			socket.emit('bulletShoot',{	x: userData[id].ped.sprite.bb.x,
-										y: userData[id].ped.sprite.bb.y,
+			socket.emit('bulletShoot',{	x: (userData[id].ped.sprite.bb.x),
+										y: (userData[id].ped.sprite.bb.y),
 										r: userData[id].ped.sprite.bb.angle,
 										sid: id});
 		}
