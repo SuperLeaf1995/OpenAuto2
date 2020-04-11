@@ -31,7 +31,7 @@ var id; //<- assigned socket id
 
 var toIssue = 8; //the "issue" command
 
-const cubeLines = [
+/*const cubeLines = [
 					[0,1],[1,3],[3,2],[2,0], //top face
 					[2,6],[3,7],[0,4],[1,5], //side faces
 					[6,7],[6,4],[7,5],[4,5] //bottom face
@@ -46,7 +46,7 @@ const cubeVertices = [
 						[1,-1,1],
 						[-1,1,1],
 						[1,1,1]
-					];
+					];*/
 var playerCameraX = (canvasWidth/2); //center X of camera
 var playerCameraY = (canvasHeight/2); //center Y of camera
 var viewField = canvasWidth*0.8; //field of view of the player camera
@@ -585,7 +585,7 @@ function mainGame() {
 		}
 	}
 	
-	for(let i in mapData) {
+	/*for(let i in mapData) {
 		for(let i2 in mapData[i]) {
 			for(let i3 in mapData[i][i2]) {
 				let a = tileSize*i;
@@ -596,7 +596,7 @@ function mainGame() {
 				mapData[i][i2][i3].draw(display);
 			}
 		}
-	}
+	}*/
 	
 	for(let index in userData) {
 		if(userData[index].onFoot) {
